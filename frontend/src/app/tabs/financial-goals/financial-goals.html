@@ -1,0 +1,120 @@
+<div class="tab-content">
+
+  <app-warning-banner
+    [show]="sipExceeds()"
+    message="Total SIP requirement (₹ {{ totalSip() | number:'1.0-0' }}) exceeds your investing surplus (₹ {{ surplus() | number:'1.0-0' }}). Review your goals or increase income.">
+  </app-warning-banner>
+
+  <!-- Summary chips -->
+  <div class="goals-summary">
+    <div class="gs-chip">
+      <div class="gs-label">Monthly Surplus (from Tab 2)</div>
+      <div class="gs-value positive">₹ {{ surplus() | number:'1.0-0' }}</div>
+    </div>
+    <div class="gs-chip">
+      <div class="gs-label">Total SIP Required</div>
+      <div class="gs-value" [class.negative]="sipExceeds()">₹ {{ totalSip() | number:'1.0-0' }}</div>
+    </div>
+    <div class="gs-chip" [class.danger]="available() < 0">
+      <div class="gs-label">Available After SIPs</div>
+      <div class="gs-value" [class.positive]="available() >= 0" [class.negative]="available() < 0">₹ {{ available() | number:'1.0-0' }}</div>
+    </div>
+  </div>
+
+  <!-- Goals Table (horizontal scroll on mobile) -->
+  <mat-card>
+    <mat-card-header><mat-card-title>Financial Goals — SIP Planner</mat-card-title>
+      <mat-card-subtitle>Enter goal details · SIP is auto-calculated using blended returns from Tab 1</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="goals-scroll">
+        <table class="goals-table-el">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Goal Name</th>
+              <th>Priority</th>
+              <th>Years</th>
+              <th>Type</th>
+              <th class="amount-cell">Amt Today (₹)</th>
+              <th class="amount-cell">Available (₹)</th>
+              <th class="amount-cell">Inflation %</th>
+              <th class="amount-cell">Step-Up %</th>
+              <th class="amount-cell">Future Value</th>
+              <th class="amount-cell">Monthly SIP</th>
+              <th class="amount-cell">Dom.Eq</th>
+              <th class="amount-cell">US Eq</th>
+              <th class="amount-cell">Debt</th>
+              <th class="amount-cell">Gold</th>
+              <th class="amount-cell">Crypto</th>
+              <th class="amount-cell">RE/REIT</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (g of computedGoals(); track $index; let i = $index) {
+              <tr [class.active-row]="g.raw.name">
+                <td class="row-num">{{ i + 1 }}</td>
+                <td><input class="goal-text-input" [value]="g.raw.name"
+                     (change)="update(i, 'name', $any($event.target).value)" placeholder="e.g. Retirement"/></td>
+                <td><input type="number" class="goal-num-input sm" [value]="g.raw.priority ?? ''"
+                     (change)="update(i, 'priority', $any($event.target).value)" min="1" placeholder="1"/></td>
+                <td><input type="number" class="goal-num-input sm" [value]="g.raw.timeYears ?? ''"
+                     (change)="update(i, 'timeYears', $any($event.target).value)" min="0" placeholder="10"/></td>
+                <td class="horizon-cell">
+                  @if (g.horizon) {
+                    <span class="horizon-badge" [class]="g.horizon">{{ horizonLabel[g.horizon] }}</span>
+                  } @else { <span class="dim">—</span> }
+                </td>
+                <td class="amount-cell"><input type="number" class="goal-num-input" [value]="g.raw.amountToday ?? ''"
+                     (change)="update(i, 'amountToday', $any($event.target).value)" min="0" placeholder="0"/></td>
+                <td class="amount-cell"><input type="number" class="goal-num-input" [value]="g.raw.amountAvailable ?? ''"
+                     (change)="update(i, 'amountAvailable', $any($event.target).value)" min="0" placeholder="0"/></td>
+                <td class="amount-cell"><input type="number" class="goal-num-input sm" [value]="g.raw.inflationPct ?? ''"
+                     (change)="update(i, 'inflationPct', $any($event.target).value)" min="0" max="30" placeholder="6"/></td>
+                <td class="amount-cell"><input type="number" class="goal-num-input sm" [value]="g.raw.sipStepUpPct ?? ''"
+                     (change)="update(i, 'sipStepUpPct', $any($event.target).value)" min="0" max="50" placeholder="10"/></td>
+                <td class="amount-cell computed-cell">{{ fmtFv(g) }}</td>
+                <td class="amount-cell computed-cell sip-cell">{{ fmtSip(g) }}</td>
+                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.domesticEquity) }}</td>
+                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.usEquity) }}</td>
+                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.debt) }}</td>
+                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.gold) }}</td>
+                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.crypto) }}</td>
+                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.realEstate) }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <!-- Total row -->
+            <tr class="footer-total">
+              <td colspan="5"><strong>Total</strong></td>
+              <td class="amount-cell"><strong>₹ {{ totalAmountToday() | number:'1.0-0' }}</strong></td>
+              <td class="amount-cell"><strong>₹ {{ totalAvailableToday() | number:'1.0-0' }}</strong></td>
+              <td colspan="3"></td>
+              <td class="amount-cell"><strong>₹ {{ totalSip() | number:'1.0-0' }}</strong></td>
+              <td class="amount-cell">₹ {{ totalAllocSip().domesticEquity | number:'1.0-0' }}</td>
+              <td class="amount-cell">₹ {{ totalAllocSip().usEquity | number:'1.0-0' }}</td>
+              <td class="amount-cell">₹ {{ totalAllocSip().debt | number:'1.0-0' }}</td>
+              <td class="amount-cell">₹ {{ totalAllocSip().gold | number:'1.0-0' }}</td>
+              <td class="amount-cell">₹ {{ totalAllocSip().crypto | number:'1.0-0' }}</td>
+              <td class="amount-cell">₹ {{ totalAllocSip().realEstate | number:'1.0-0' }}</td>
+            </tr>
+            <!-- Max row -->
+            <tr class="footer-max">
+              <td colspan="10"><strong>Max (Monthly Investing Surplus from Tab 2)</strong></td>
+              <td class="amount-cell"><strong>₹ {{ surplus() | number:'1.0-0' }}</strong></td>
+              <td colspan="6"></td>
+            </tr>
+            <!-- Available row -->
+            <tr class="footer-avail" [class.danger]="available() < 0">
+              <td colspan="10"><strong>Available</strong></td>
+              <td class="amount-cell"><strong>₹ {{ available() | number:'1.0-0' }}</strong></td>
+              <td colspan="6"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</div>

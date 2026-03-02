@@ -1,0 +1,79 @@
+<div class="tab-content">
+
+  <div class="two-col-grid">
+
+    <!-- Inflows -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Monthly Inflows</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <table class="flow-table">
+          @for (row of inflows; track row.key) {
+            <tr>
+              <td class="flow-label">{{ row.label }}</td>
+              <td class="flow-input">
+                <span class="rupee">₹</span>
+                <input type="number" class="num-input"
+                       [value]="getValue('inflows', row.key)"
+                       (change)="setValue('inflows', row.key, $any($event.target).value)"
+                       min="0"/>
+              </td>
+            </tr>
+          }
+          <tr class="summary-tr">
+            <td class="flow-label"><strong>Total Inflows</strong></td>
+            <td class="flow-input positive">
+              <strong>₹ {{ store.totalInflows() | number:'1.0-0' }}</strong>
+            </td>
+          </tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Outflows -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Monthly Outflows</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <table class="flow-table">
+          @for (row of outflows; track row.key) {
+            <tr>
+              <td class="flow-label">{{ row.label }}</td>
+              <td class="flow-input">
+                <span class="rupee">₹</span>
+                <input type="number" class="num-input"
+                       [value]="getValue('outflows', row.key)"
+                       (change)="setValue('outflows', row.key, $any($event.target).value)"
+                       min="0"/>
+              </td>
+            </tr>
+          }
+          <tr class="summary-tr">
+            <td class="flow-label"><strong>Total Outflows</strong></td>
+            <td class="flow-input negative">
+              <strong>₹ {{ store.totalOutflows() | number:'1.0-0' }}</strong>
+            </td>
+          </tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- Investing Surplus -->
+  <mat-card class="surplus-card">
+    <mat-card-content>
+      <div class="surplus-row">
+        <span class="surplus-label">📊 Monthly Investing Surplus</span>
+        <span class="surplus-value" [class.positive]="store.investingSurplus() >= 0"
+                                    [class.negative]="store.investingSurplus() < 0">
+          ₹ {{ store.investingSurplus() | number:'1.0-0' }}
+        </span>
+        <span class="surplus-hint">(Inflows − Outflows · feeds into Financial Goals)</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</div>

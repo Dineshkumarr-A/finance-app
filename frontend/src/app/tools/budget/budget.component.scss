@@ -1,0 +1,66 @@
+.top-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.right-col { display: flex; flex-direction: column; gap: 20px; }
+.grid-2x   { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.invest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Emergency fund */
+.emf-status {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 12px; padding: 10px 14px; border-radius: 8px; font-size: 13px;
+  &.good { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  &.warn { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  &.bad  { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+}
+.emf-icon { font-size: 16px; }
+
+/* P&L summary */
+.summary-rows { margin-bottom: 16px; }
+.s-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; color: #334155;
+  &.divider { border-bottom: 2px solid #e2e8f0; padding: 0; }
+  &.total { font-weight: 700; font-size: 15px; padding-top: 10px; }
+}
+.pos { color: #059669; font-weight: 700; font-variant-numeric: tabular-nums; }
+.neg { color: #dc2626; font-weight: 700; font-variant-numeric: tabular-nums; }
+.inv { color: #7c3aed; font-weight: 700; font-variant-numeric: tabular-nums; }
+.summary-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* Budget bar */
+.budget-bar {
+  height: 18px; display: flex; border-radius: 6px; overflow: hidden;
+  gap: 1px; margin-bottom: 16px;
+}
+.budget-segment { height: 100%; transition: opacity 0.2s; &:hover { opacity: 0.8; } }
+
+.budget-legend {
+  display: flex; flex-wrap: wrap; gap: 8px 16px;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.legend-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legend-label { color: #475569; }
+.legend-val   { color: #1e293b; font-weight: 600; font-variant-numeric: tabular-nums; }
+.legend-pct   { color: #94a3b8; font-size: 11px; }
+
+/* 50/30/20 rule */
+.rules-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;
+  @media (max-width: 700px) { grid-template-columns: 1fr; }
+}
+.rule-card {
+  padding: 20px; border-radius: 10px; border: 1.5px solid #e2e8f0;
+  &.ok    { border-color: rgba(5,150,105,0.3); background: rgba(5,150,105,0.04); }
+  &.over  { border-color: rgba(220,38,38,0.3); background: rgba(220,38,38,0.04); }
+  &.under { border-color: rgba(217,119,6,0.3); background: rgba(217,119,6,0.04); }
+}
+.rule-title  { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+.rule-pct    { font-size: 2.5rem; font-weight: 900; color: #1e293b; letter-spacing: -1px; font-variant-numeric: tabular-nums; margin: 6px 0; }
+.rule-amount { font-size: 13px; color: #475569; font-variant-numeric: tabular-nums; font-weight: 600; }
+.rule-desc   { font-size: 12px; color: #94a3b8; margin: 6px 0; line-height: 1.4; }
+.rule-status { font-size: 12px; font-weight: 600; color: #475569; }

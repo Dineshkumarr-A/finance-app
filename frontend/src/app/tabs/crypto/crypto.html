@@ -1,0 +1,19 @@
+<div class="tab-content">
+  <mat-card>
+    <mat-card-header><mat-card-title>Cryptocurrency Holdings</mat-card-title>
+      <mat-card-subtitle>Total portfolio value in INR</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="crypto-row">
+        <label class="crypto-label">Total Crypto Value (₹)</label>
+        <input type="number" class="num-input" [value]="store.crypto().total"
+               (change)="update($any($event.target).value)" min="0"
+               placeholder="e.g. 500000"/>
+      </div>
+      <div class="crypto-total">
+        <span>Portfolio Total:</span>
+        <span class="return-chip">₹ {{ store.totalCrypto() | number:'1.0-0' }}</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,93 @@
+<div class="tab-content">
+
+  <!-- Four debt sub-sections -->
+  @for (section of sections; track section) {
+    <mat-card>
+      <mat-card-header><mat-card-title>{{ sectionLabels[section] }}</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <table class="asset-table">
+          <thead><tr><th>Name / Particulars</th><th class="amount-cell">Current Value (₹)</th><th></th></tr></thead>
+          <tbody>
+            @for (row of d[section]; track $index; let i = $index) {
+              <tr>
+                <td><input class="text-input" [value]="row.name" (change)="updateRow(section, i, 'name', $any($event.target).value)" placeholder="Enter name"/></td>
+                <td class="amount-cell"><input type="number" class="num-input" [value]="row.value" (change)="updateRow(section, i, 'value', $any($event.target).value)" min="0"/></td>
+                <td><button class="icon-btn" (click)="removeRow(section, i)" title="Remove">✕</button></td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="summary-tr">
+              <td><strong>Sub-total</strong></td>
+              <td class="amount-cell positive"><strong>₹ {{ sectionTotal(section) | number:'1.0-0' }}</strong></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-btn" (click)="addRow(section)">+ Add Row</button>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Grand Total -->
+  <mat-card class="total-card">
+    <mat-card-content>
+      <div class="total-row">
+        <span>Total Debt Holdings</span>
+        <span class="return-chip">₹ {{ store.totalDebt() | number:'1.0-0' }}</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- MF Component Summary -->
+  <mat-card>
+    <mat-card-header><mat-card-title>Debt SIP Component Summary</mat-card-title>
+      <mat-card-subtitle>Auto-calculated from SIP Allocator below</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="asset-table">
+        <thead><tr><th>Sub-category</th><th class="amount-cell">SIP (₹)</th><th class="amount-cell">%</th></tr></thead>
+        <tbody>
+          @for (row of mfSummary(); track row.label) {
+            <tr>
+              <td>{{ row.label }}</td>
+              <td class="amount-cell">₹ {{ row.value | number:'1.0-0' }}</td>
+              <td class="amount-cell"><span class="pct-badge">{{ row.pct | number:'1.1-1' }}%</span></td>
+            </tr>
+          }
+        </tbody>
+        <tfoot><tr class="summary-tr"><td><strong>Total SIP</strong></td><td class="amount-cell"><strong>₹ {{ totalSip() | number:'1.0-0' }}</strong></td><td></td></tr></tfoot>
+      </table>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- SIP Allocator -->
+  <mat-card>
+    <mat-card-header><mat-card-title>Debt SIP Allocator</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <table class="asset-table">
+        <thead><tr><th>Holding / Fund</th><th>Sub-category</th><th class="amount-cell">SIP (₹/mo)</th><th class="amount-cell">Max (₹)</th><th></th></tr></thead>
+        <tbody>
+          @for (row of d.sipAllocator; track $index; let i = $index) {
+            <tr [class.warn-row]="sipExceedsMax(row)">
+              <td><input class="text-input" [value]="row.name" (change)="updateSipRow(i, 'name', $any($event.target).value)" placeholder="Fund name"/></td>
+              <td>
+                <select class="select-input" [value]="row.subCategory" (change)="updateSipRow(i, 'subCategory', $any($event.target).value)">
+                  @for (k of subCatKeys; track k) { <option [value]="k">{{ subCatLabels[k] }}</option> }
+                </select>
+              </td>
+              <td class="amount-cell"><input type="number" class="num-input" [value]="row.sipAmount" (change)="updateSipRow(i, 'sipAmount', $any($event.target).value)" min="0"/></td>
+              <td class="amount-cell"><input type="number" class="num-input" [value]="row.max" (change)="updateSipRow(i, 'max', $any($event.target).value)" min="0"/></td>
+              <td><button class="icon-btn" (click)="removeSipRow(i)">✕</button></td>
+            </tr>
+            @if (sipExceedsMax(row)) {
+              <tr class="warn-row"><td colspan="5" class="warn-text">⚠ SIP exceeds Max allocation for this category</td></tr>
+            }
+          }
+        </tbody>
+      </table>
+      <button class="add-btn" (click)="addSipRow()">+ Add Row</button>
+    </mat-card-content>
+  </mat-card>
+
+</div>

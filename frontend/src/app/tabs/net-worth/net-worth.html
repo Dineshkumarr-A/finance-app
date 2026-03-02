@@ -1,0 +1,153 @@
+<div class="tab-content">
+
+  <div class="two-col-grid">
+
+    <!-- Illiquid Assets — auto-populated from other tabs -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Illiquid Assets</mat-card-title>
+        <mat-card-subtitle>Auto-populated from asset tabs</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <table class="asset-table">
+          <thead><tr><th>Asset</th><th class="amount-cell">Value (₹)</th><th class="source-cell">Source</th></tr></thead>
+          <tbody>
+            @for (row of illiquidRows(); track row.label) {
+              <tr>
+                <td>{{ row.label }}</td>
+                <td class="amount-cell">₹ {{ row.value | number:'1.0-0' }}</td>
+                <td class="source-cell"><span class="source-badge">{{ row.sourceTab }}</span></td>
+              </tr>
+            }
+          </tbody>
+          <tfoot><tr class="summary-tr"><td><strong>Total Illiquid</strong></td><td class="amount-cell positive"><strong>₹ {{ totalIlliquid() | number:'1.0-0' }}</strong></td><td></td></tr></tfoot>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Liquid Assets — auto-populated from other tabs -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Liquid Assets</mat-card-title>
+        <mat-card-subtitle>Auto-populated from asset tabs</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <table class="asset-table">
+          <thead><tr><th>Asset</th><th class="amount-cell">Value (₹)</th><th class="source-cell">Source</th></tr></thead>
+          <tbody>
+            @for (row of liquidRows(); track row.label) {
+              <tr>
+                <td>{{ row.label }}</td>
+                <td class="amount-cell">₹ {{ row.value | number:'1.0-0' }}</td>
+                <td class="source-cell"><span class="source-badge">{{ row.sourceTab }}</span></td>
+              </tr>
+            }
+          </tbody>
+          <tfoot><tr class="summary-tr"><td><strong>Total Liquid</strong></td><td class="amount-cell positive"><strong>₹ {{ totalLiquid() | number:'1.0-0' }}</strong></td><td></td></tr></tfoot>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- Liabilities — manual input -->
+  <mat-card>
+    <mat-card-header><mat-card-title>Liabilities</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <table class="asset-table">
+        <thead><tr><th>Liability</th><th class="amount-cell">Outstanding (₹)</th></tr></thead>
+        <tbody>
+          @for (row of liabilityRows; track row.key) {
+            <tr>
+              <td>{{ row.label }}</td>
+              <td class="amount-cell">
+                <input type="number" class="num-input"
+                       [value]="store.netWorthLiabilities()[row.key]"
+                       (change)="setLiability(row.key, $any($event.target).value)" min="0"/>
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot><tr class="summary-tr"><td><strong>Total Liabilities</strong></td><td class="amount-cell negative"><strong>₹ {{ totalLiabilities() | number:'1.0-0' }}</strong></td></tr></tfoot>
+      </table>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Net Worth Summary -->
+  <div class="nw-summary-grid">
+    <div class="nw-chip">
+      <div class="nw-chip-label">Total Assets</div>
+      <div class="nw-chip-value positive">₹ {{ totalAssets() | number:'1.0-0' }}</div>
+    </div>
+    <div class="nw-chip">
+      <div class="nw-chip-label">Total Liabilities</div>
+      <div class="nw-chip-value negative">₹ {{ totalLiabilities() | number:'1.0-0' }}</div>
+    </div>
+    <div class="nw-chip primary">
+      <div class="nw-chip-label">Net Worth</div>
+      <div class="nw-chip-value" [class.positive]="netWorth() >= 0" [class.negative]="netWorth() < 0">₹ {{ netWorth() | number:'1.0-0' }}</div>
+    </div>
+  </div>
+
+  <!-- Total Asset Summary (from tabs 4–10) -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Total Asset Class Summary</mat-card-title>
+      <mat-card-subtitle>Pulled automatically from individual asset tabs</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="asset-table">
+        <thead><tr><th>Asset Class</th><th class="amount-cell">Current Value (₹)</th><th class="amount-cell">%</th></tr></thead>
+        <tbody>
+          @for (row of assetClassRows(); track row.label) {
+            <tr>
+              <td>{{ row.label }}</td>
+              <td class="amount-cell">₹ {{ row.value | number:'1.0-0' }}</td>
+              <td class="amount-cell"><span class="pct-badge">{{ row.pct | number:'1.1-1' }}%</span></td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr class="summary-tr">
+            <td><strong>Total Investable</strong></td>
+            <td class="amount-cell positive"><strong>₹ {{ store.totalInvestableAssets() | number:'1.0-0' }}</strong></td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Current vs Required Allocation -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Current vs Required Investable Asset Allocation</mat-card-title>
+      <mat-card-subtitle>Required = Long-term allocation from Tab 1</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="asset-table comparison-table">
+        <thead>
+          <tr>
+            <th>Asset Class</th>
+            <th class="amount-cell">Current (₹)</th>
+            <th class="amount-cell">Current %</th>
+            <th class="amount-cell">Required (₹)</th>
+            <th class="amount-cell">Required %</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (i of [0,1,2,3,4,5]; track i) {
+            <tr>
+              <td>{{ assetClassRows()[i].label }}</td>
+              <td class="amount-cell">₹ {{ assetClassRows()[i].value | number:'1.0-0' }}</td>
+              <td class="amount-cell"><span class="pct-badge">{{ assetClassRows()[i].pct | number:'1.1-1' }}%</span></td>
+              <td class="amount-cell">₹ {{ reqAllocRows()[i].reqVal | number:'1.0-0' }}</td>
+              <td class="amount-cell"><span class="pct-badge">{{ reqAllocRows()[i].reqPct | number:'1.1-1' }}%</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </mat-card-content>
+  </mat-card>
+
+</div>

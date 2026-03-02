@@ -1,0 +1,89 @@
+<div class="tool-page">
+  <div class="page-header">
+    <h1 class="page-title">🔥 FIRE Calculator</h1>
+    <p class="page-desc">Financial Independence, Retire Early — calculate your path to freedom</p>
+  </div>
+
+  <app-profile-bar />
+
+  <div class="top-grid">
+    <!-- Inputs -->
+    <div class="tool-card">
+      <div class="section-label">Retirement Details</div>
+      <div class="inputs-grid">
+        <app-input label="Current Age"            [value]="age"            (valueChange)="setField({age: $event})"            [min]="18" [max]="60"  suffix="yrs" />
+        <app-input label="Target Retire Age"      [value]="retireAge"      (valueChange)="setField({retireAge: $event})"      [min]="age+1" [max]="70" suffix="yrs" />
+        <app-input label="Current Savings"        [value]="currentSavings" (valueChange)="setField({currentSavings: $event})" [min]="0" [step]="100000" prefix="₹" />
+        <app-input label="Life Expectancy"        [value]="lifeExpectancy" (valueChange)="setField({lifeExpectancy: $event})" [min]="60" [max]="100" suffix="yrs" />
+        <app-input label="Pre-Retirement Return"  [value]="preReturnPct"   (valueChange)="setField({preReturnPct: $event})"   [min]="1" [max]="30" [step]="0.5" suffix="%" />
+        <app-input label="Post-Retirement Return" [value]="postReturnPct"  (valueChange)="setField({postReturnPct: $event})"  [min]="1" [max]="20" [step]="0.5" suffix="%" />
+        <app-input label="Inflation Rate"         [value]="inflationPct"   (valueChange)="setField({inflationPct: $event})"   [min]="1" [max]="15" [step]="0.5" suffix="%" />
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-col">
+      <div class="tool-card status-card" [class.ready]="isReady" [class.not-ready]="!isReady">
+        <div class="status-label">FIRE Status</div>
+        <div class="status-value">{{ isReady ? '✅ On Track' : '⚠️ Needs Work' }}</div>
+        <div class="status-detail">
+          {{ isReady
+            ? 'Retire in ' + yearsToRetire + ' years at age ' + retireAge
+            : 'Gap of ' + fs.fmtCr(surplus * -1) + ' — increase savings!' }}
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="progress" [class.complete]="progress >= 100"></div>
+          </div>
+          <span class="progress-pct">{{ fs.pct(progress) }}</span>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <app-stat-card label="FIRE Number"     [value]="fs.fmtCr(fireNumber)"      sub="Total corpus needed"    color="accent" />
+        <app-stat-card label="Projected Corpus" [value]="fs.fmtCr(projectedCorpus)" [sub]="'At age ' + retireAge" [color]="isReady ? 'green' : 'orange'" />
+        <app-stat-card label="Safe Monthly"     [value]="fs.fmtCr(safeMonthly)"     sub="4% rule withdrawal"     color="purple" />
+        <app-stat-card
+          label="Corpus Sustains"
+          [value]="yearsSustained >= 100 ? '∞ years' : yearsSustained + ' yrs'"
+          sub="Post-retirement"
+          [color]="yearsSustained >= retireDuration ? 'green' : 'red'" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Projection Table -->
+  <div class="tool-card">
+    <div class="section-label">Year-by-Year Projection</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Age</th><th>Year</th><th>Corpus</th><th>FIRE Number</th>
+            <th>Annual Expense</th><th>SIP Invested</th><th>Progress</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of rows" [class.retire-row]="row.isRetireYear">
+            <td class="mono">{{ row.age }}</td>
+            <td class="mono muted">{{ row.year }}</td>
+            <td class="mono t-green">{{ fs.fmtCr(row.corpus) }}</td>
+            <td class="mono muted">{{ fs.fmtCr(row.fireNumber) }}</td>
+            <td class="mono t-orange">{{ fs.fmtCr(row.annualExpense) }}</td>
+            <td class="mono t-blue">{{ fs.fmtCr(row.sipTotal) }}</td>
+            <td>
+              <div class="mini-bar">
+                <div class="mini-fill" [style.width.%]="row.progress" [class.done]="row.progress >= 100"></div>
+              </div>
+            </td>
+            <td>
+              <span *ngIf="row.isRetireYear" class="badge fire">🔥 FIRE</span>
+              <span *ngIf="!row.isRetireYear && row.isReady" class="badge ready">✅ Ready</span>
+              <span *ngIf="!row.isRetireYear && !row.isReady" class="pct-text">{{ fs.pct(row.progress) }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

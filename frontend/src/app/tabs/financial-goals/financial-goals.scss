@@ -1,0 +1,156 @@
+/* ── Summary chips ────────────────────────────────────────── */
+.goals-summary {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.gs-chip {
+  flex: 1;
+  min-width: 160px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 22px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  border: 1px solid #e2e8f0;
+  border-top: 3px solid #2563eb;
+
+  &.danger {
+    background: #fef2f2;
+    border-top-color: #dc2626;
+  }
+}
+
+.gs-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.gs-value {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+/* ── Goals table ─────────────────────────────────────────── */
+.goals-scroll { overflow-x: auto; }
+
+.goals-table-el {
+  border-collapse: collapse;
+  white-space: nowrap;
+  min-width: 1400px;
+
+  th {
+    background: #f1f5f9;
+    padding: 9px 8px;
+    border-bottom: 2px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #475569;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #f1f5f9;
+    border-right: 1px solid #f1f5f9;
+    font-size: 12px;
+    vertical-align: middle;
+    color: #334155;
+  }
+
+  tbody tr:hover td { background: #f8fafc; }
+
+  .row-num { text-align: center; color: #94a3b8; font-size: 11px; font-weight: 700; }
+}
+
+/* ── Goal inputs ─────────────────────────────────────────── */
+.goal-text-input {
+  width: 130px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 5px;
+  padding: 4px 7px;
+  font-size: 12px;
+  background: #fff;
+  color: #1e293b;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+  }
+}
+
+.goal-num-input {
+  width: 90px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 5px;
+  padding: 4px 7px;
+  font-size: 12px;
+  text-align: right;
+  background: #fff;
+  color: #1e293b;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+
+  &.sm { width: 60px; }
+
+  &:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+  }
+}
+
+/* ── Computed cells ──────────────────────────────────────── */
+.computed-cell {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+}
+
+.sip-cell {
+  background: #eff6ff !important;
+  color: #1e3a5f;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.active-row .computed-cell { background: #f0fdf4; }
+
+/* ── Horizon badges ──────────────────────────────────────── */
+.horizon-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  &.short  { background: #dcfce7; color: #166534; }
+  &.medium { background: #fef9c3; color: #854d0e; }
+  &.long   { background: #dbeafe; color: #1e3a5f; }
+}
+
+.dim { color: #cbd5e1; }
+
+/* ── Footer rows ─────────────────────────────────────────── */
+.footer-total td,
+.footer-max td,
+.footer-avail td {
+  padding: 7px 8px !important;
+  font-size: 12px;
+}

@@ -1,0 +1,113 @@
+<div class="tool-page">
+  <div class="page-header">
+    <h1 class="page-title">🗂️ Budget Planner</h1>
+    <p class="page-desc">Budget, invest, and plan — your 50/30/20 financial dashboard</p>
+  </div>
+
+  <app-profile-bar />
+
+  <div class="top-grid">
+    <!-- Expenses -->
+    <div class="tool-card">
+      <div class="section-label">Monthly Expenses</div>
+      <div class="grid-2x">
+        <app-input label="Rent / Mortgage"  [value]="rent"           (valueChange)="setField({rent: $event})"           [step]="1000" prefix="₹" />
+        <app-input label="Food & Groceries" [value]="food"           (valueChange)="setField({food: $event})"           [step]="500"  prefix="₹" />
+        <app-input label="Transport"        [value]="transport"      (valueChange)="setField({transport: $event})"      [step]="500"  prefix="₹" />
+        <app-input label="Utilities"        [value]="utilities"      (valueChange)="setField({utilities: $event})"      [step]="500"  prefix="₹" />
+        <app-input label="Entertainment"    [value]="entertainment"  (valueChange)="setField({entertainment: $event})"  [step]="500"  prefix="₹" />
+        <app-input label="Insurance"        [value]="insurance"      (valueChange)="setField({insurance: $event})"      [step]="500"  prefix="₹" />
+        <app-input label="Others"           [value]="otherExpenses"  (valueChange)="setField({otherExpenses: $event})"  [step]="500"  prefix="₹" />
+      </div>
+    </div>
+
+    <!-- Investments + Summary -->
+    <div class="right-col">
+      <div class="tool-card">
+        <div class="section-label">Additional Investments</div>
+        <div class="invest-grid">
+          <!-- SIP/MF comes from profile savings; add extra instruments here -->
+          <app-input label="PPF"                 [value]="ppf"       (valueChange)="setField({ppf: $event})"       [step]="500" prefix="₹" />
+          <app-input label="ELSS (Tax Saver)"    [value]="elss"      (valueChange)="setField({elss: $event})"      [step]="500" prefix="₹" />
+          <app-input label="NPS"                 [value]="nps"       (valueChange)="setField({nps: $event})"       [step]="500" prefix="₹" />
+          <app-input label="FD / Debt"           [value]="fd"        (valueChange)="setField({fd: $event})"        [step]="1000" prefix="₹" />
+        </div>
+
+        <div class="section-label" style="margin-top: 20px;">Emergency Fund</div>
+        <app-input label="Emergency Fund (Total Saved)" [value]="emergency" (valueChange)="setField({emergency: $event})" [step]="50000" prefix="₹" />
+        <div class="emf-status" [ngClass]="emergencyMonths >= 6 ? 'good' : emergencyMonths >= 3 ? 'warn' : 'bad'">
+          <span class="emf-icon">{{ emergencyMonths >= 6 ? '✅' : emergencyMonths >= 3 ? '⚠️' : '❌' }}</span>
+          <span>Covers <strong>{{ emergencyMonths | number:'1.1-1' }} months</strong> of expenses
+            <span *ngIf="emergencyMonths < 6"> · Target: {{ fs.fmtCr(totalExpenses * 6) }}</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- P&L summary -->
+      <div class="tool-card">
+        <div class="section-label">Monthly P&L</div>
+        <div class="summary-rows">
+          <div class="s-row"><span>Gross Income</span>      <span class="pos">+₹{{ fs.fmt(income) }}</span></div>
+          <div class="s-row"><span>Total Expenses</span>    <span class="neg">−₹{{ fs.fmt(totalExpenses) }}</span></div>
+          <div class="s-row"><span>Total Investments</span> <span class="inv">−₹{{ fs.fmt(totalInvestments) }}</span></div>
+          <div class="s-row divider"></div>
+          <div class="s-row total">
+            <span>Net Free Cash</span>
+            <span [ngClass]="netSavings >= 0 ? 'pos' : 'neg'">{{ netSavings >= 0 ? '+' : '' }}₹{{ fs.fmt(netSavings) }}</span>
+          </div>
+        </div>
+        <div class="summary-stats">
+          <app-stat-card label="Savings Rate"  [value]="fs.pct(savingsRate)"  sub="% invested"             [color]="savingsRate >= 30 ? 'green' : savingsRate >= 20 ? 'accent' : 'orange'" />
+          <app-stat-card label="Expense Ratio" [value]="fs.pct(expenseRatio)" sub="% spent"                [color]="expenseRatio <= 50 ? 'green' : expenseRatio <= 70 ? 'accent' : 'red'" />
+          <app-stat-card label="Est. Tax Saved" [value]="fs.fmtCr(taxSaved)"  sub="80C benefit (30% slab)" color="purple" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget Bar -->
+  <div class="tool-card">
+    <div class="section-label">Budget Breakdown</div>
+    <div class="budget-bar">
+      <div *ngFor="let s of slices" class="budget-segment"
+           [style.width.%]="s.pct" [style.background]="s.color"
+           [title]="s.label + ': ₹' + fs.fmt(s.value) + ' (' + fs.pct(s.pct) + ')'"></div>
+    </div>
+    <div class="budget-legend">
+      <div *ngFor="let s of slices" class="legend-item">
+        <span class="legend-dot" [style.background]="s.color"></span>
+        <span class="legend-label">{{ s.label }}</span>
+        <span class="legend-val">₹{{ fs.fmt(s.value) }}</span>
+        <span class="legend-pct">{{ fs.pct(s.pct) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 50/30/20 Rule -->
+  <div class="tool-card">
+    <div class="section-label">50/30/20 Budget Rule</div>
+    <div class="rules-grid">
+      <div class="rule-card" [class.ok]="rulesCheck.needs <= 50" [class.over]="rulesCheck.needs > 50">
+        <div class="rule-title">Needs (50%)</div>
+        <div class="rule-pct">{{ fs.pct(rulesCheck.needs) }}</div>
+        <div class="rule-amount">₹{{ fs.fmt(totalExpenses) }} / mo</div>
+        <div class="rule-desc">Rent, utilities, groceries, transport, EMI</div>
+        <div class="rule-status">{{ rulesCheck.needs <= 50 ? '✅ Within 50% target' : '⚠️ ' + fs.pct(rulesCheck.needs - 50) + ' over target' }}</div>
+      </div>
+      <div class="rule-card" [class.ok]="rulesCheck.wants <= 30" [class.over]="rulesCheck.wants > 30">
+        <div class="rule-title">Wants (30%)</div>
+        <div class="rule-pct">{{ fs.pct(rulesCheck.wants) }}</div>
+        <div class="rule-amount">₹{{ fs.fmt(entertainment + otherExpenses) }} / mo</div>
+        <div class="rule-desc">Entertainment, dining out, subscriptions</div>
+        <div class="rule-status">{{ rulesCheck.wants <= 30 ? '✅ Within 30% target' : '⚠️ ' + fs.pct(rulesCheck.wants - 30) + ' over target' }}</div>
+      </div>
+      <div class="rule-card" [class.ok]="rulesCheck.savings >= 20" [class.under]="rulesCheck.savings < 20">
+        <div class="rule-title">Savings (20%)</div>
+        <div class="rule-pct">{{ fs.pct(rulesCheck.savings) }}</div>
+        <div class="rule-amount">₹{{ fs.fmt(totalInvestments) }} / mo</div>
+        <div class="rule-desc">MF SIPs, PPF, ELSS, NPS, FD</div>
+        <div class="rule-status">{{ rulesCheck.savings >= 20 ? '✅ Meets 20% target' : '⚠️ ' + fs.pct(20 - rulesCheck.savings) + ' below target' }}</div>
+      </div>
+    </div>
+  </div>
+</div>

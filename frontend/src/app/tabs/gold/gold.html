@@ -1,0 +1,18 @@
+<div class="tab-content">
+  <mat-card>
+    <mat-card-header><mat-card-title>Gold Holdings</mat-card-title>
+      <mat-card-subtitle>All values in INR</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="asset-table">
+        <thead><tr><th>Asset</th><th class="amount-cell">Current Value (₹)</th></tr></thead>
+        <tbody>
+          <tr><td>Jewellery (market value)</td><td class="amount-cell"><input type="number" class="num-input" [value]="g.jewellery" (change)="update('jewellery', $any($event.target).value)" min="0"/></td></tr>
+          <tr><td>SGB (Sovereign Gold Bonds)</td><td class="amount-cell"><input type="number" class="num-input" [value]="g.sgb" (change)="update('sgb', $any($event.target).value)" min="0"/></td></tr>
+          <tr><td>Gold ETF / Digital Gold</td><td class="amount-cell"><input type="number" class="num-input" [value]="g.goldEtf" (change)="update('goldEtf', $any($event.target).value)" min="0"/></td></tr>
+        </tbody>
+        <tfoot><tr class="summary-tr"><td><strong>Total</strong></td><td class="amount-cell positive"><strong>₹ {{ store.totalGold() | number:'1.0-0' }}</strong></td></tr></tfoot>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

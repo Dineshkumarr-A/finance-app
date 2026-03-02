@@ -1,0 +1,44 @@
+.crypto-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 6px 0;
+}
+
+.crypto-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  min-width: 200px;
+}
+
+.num-input {
+  width: 190px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 16px;
+  text-align: right;
+  background: #fff;
+  color: #1e293b;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+}
+
+.crypto-total {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #334155;
+  padding: 4px 0;
+}

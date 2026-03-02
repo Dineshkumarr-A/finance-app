@@ -1,0 +1,98 @@
+<div class="tab-content">
+
+  <!-- Expected Annual Returns -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Expected Annual Returns per Asset Class</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="rows" class="compact-table">
+        <ng-container matColumnDef="asset">
+          <th mat-header-cell *matHeaderCellDef>Asset Class</th>
+          <td mat-cell *matCellDef="let row">{{ row.label }}</td>
+        </ng-container>
+        <ng-container matColumnDef="return">
+          <th mat-header-cell *matHeaderCellDef>Annual Return (%)</th>
+          <td mat-cell *matCellDef="let row" class="amount-cell">
+            <input type="number" class="num-input"
+                   [value]="getReturn(row.key)"
+                   (change)="setReturn(row.key, $any($event.target).value)"
+                   min="0" max="100" step="0.1"/>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="returnColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: returnColumns;"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Asset Allocation by Time Horizon -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Asset Allocation % by Time Horizon</mat-card-title>
+      <mat-card-subtitle>Each column should sum to 100%</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="rows" class="compact-table">
+        <ng-container matColumnDef="asset">
+          <th mat-header-cell *matHeaderCellDef>Asset Class</th>
+          <td mat-cell *matCellDef="let row">{{ row.label }}</td>
+        </ng-container>
+        <ng-container matColumnDef="short">
+          <th mat-header-cell *matHeaderCellDef>Short (&lt;3yr)</th>
+          <td mat-cell *matCellDef="let row" class="amount-cell">
+            <input type="number" class="num-input"
+                   [value]="getAlloc(row.key, 'short')"
+                   (change)="setAlloc(row.key, 'short', $any($event.target).value)"
+                   min="0" max="100"/>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="medium">
+          <th mat-header-cell *matHeaderCellDef>Medium (3–5yr)</th>
+          <td mat-cell *matCellDef="let row" class="amount-cell">
+            <input type="number" class="num-input"
+                   [value]="getAlloc(row.key, 'medium')"
+                   (change)="setAlloc(row.key, 'medium', $any($event.target).value)"
+                   min="0" max="100"/>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="long">
+          <th mat-header-cell *matHeaderCellDef>Long (&gt;6yr)</th>
+          <td mat-cell *matCellDef="let row" class="amount-cell">
+            <input type="number" class="num-input"
+                   [value]="getAlloc(row.key, 'long')"
+                   (change)="setAlloc(row.key, 'long', $any($event.target).value)"
+                   min="0" max="100"/>
+          </td>
+        </ng-container>
+        <!-- Sum row -->
+        <tr mat-header-row *matHeaderRowDef="allocationColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: allocationColumns;"></tr>
+      </table>
+      <div class="alloc-sum-row">
+        <span>Column totals:</span>
+        <span [class.alloc-warn]="allocSum('short') !== 100">Short: {{ allocSum('short') }}%</span>
+        <span [class.alloc-warn]="allocSum('medium') !== 100">Medium: {{ allocSum('medium') }}%</span>
+        <span [class.alloc-warn]="allocSum('long') !== 100">Long: {{ allocSum('long') }}%</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Blended Returns -->
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Effective Blended Returns (Auto-calculated)</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="blended-chips">
+        @for (row of blendedRows(); track row.horizon) {
+          <div class="blended-item">
+            <span class="blended-label">{{ row.horizon }}</span>
+            <span class="return-chip">{{ row.value.toFixed(2) }}%</span>
+          </div>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</div>

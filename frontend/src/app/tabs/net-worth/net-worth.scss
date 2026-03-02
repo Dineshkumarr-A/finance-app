@@ -1,0 +1,122 @@
+.asset-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: #f1f5f9;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+    text-align: left;
+  }
+
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+    color: #334155;
+  }
+
+  tbody tr:hover td { background: #f8fafc; }
+
+  tfoot td {
+    background: #eff6ff;
+    border-top: 2px solid #bfdbfe;
+    font-weight: 700;
+    color: #1e3a5f;
+    padding: 10px 12px;
+  }
+}
+
+.num-input {
+  width: 150px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 14px;
+  text-align: right;
+  background: #fff;
+  color: #1e293b;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+}
+
+.summary-tr td {
+  border-top: 2px solid #bfdbfe;
+  background: #eff6ff;
+  font-weight: 700;
+  color: #1e3a5f;
+}
+
+/* ── Net Worth summary chips ──────────────────────────────── */
+.nw-summary-grid {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.nw-chip {
+  flex: 1;
+  min-width: 180px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 22px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  border: 1px solid #e2e8f0;
+  border-top: 3px solid #94a3b8;
+
+  &.primary {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    border: none;
+
+    .nw-chip-label { color: rgba(255,255,255,0.55); }
+    .nw-chip-value { color: #fff; }
+  }
+}
+
+.nw-chip-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.nw-chip-value {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 6px;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Source tab badge on auto-populated rows */
+.source-cell { width: 120px; }
+.source-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 20px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+/* Comparison table shading */
+.comparison-table th:nth-child(4),
+.comparison-table td:nth-child(4),
+.comparison-table th:nth-child(5),
+.comparison-table td:nth-child(5) { background: #f8fafc; }

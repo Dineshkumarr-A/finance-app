@@ -1,0 +1,76 @@
+<div class="tool-page">
+  <div class="page-header">
+    <h1 class="page-title">💳 FI Debt-OK</h1>
+    <p class="page-desc">Assess your debt health and track your path to Financial Independence</p>
+  </div>
+
+  <app-profile-bar />
+
+  <div class="top-grid">
+    <div class="tool-card">
+      <div class="section-label">Investments & Return</div>
+      <div class="inputs-grid">
+        <app-input label="Other Monthly Debts" [value]="otherDebts"       (valueChange)="setField({otherDebts: $event})"       [step]="500"    prefix="₹" />
+        <app-input label="Investable Assets"   [value]="investableAssets" (valueChange)="setField({investableAssets: $event})" [step]="100000" prefix="₹" />
+        <app-input label="Expected Return"     [value]="returnPct"        (valueChange)="setField({returnPct: $event})"        [min]="1" [max]="25" [step]="0.5" suffix="%" />
+      </div>
+    </div>
+
+    <div class="stats-col">
+      <div class="tool-card dti-card">
+        <div class="section-label">Debt-to-Income Ratio</div>
+        <div class="dti-value" [ngClass]="debtColor">{{ fs.pct(dti) }}</div>
+        <div class="dti-status" [ngClass]="debtColor">{{ debtStatus }}</div>
+        <div class="dti-detail">₹{{ fs.fmt(totalDebtMonthly) }} / month on debt out of ₹{{ fs.fmt(Math.round(monthlyIncome)) }} income</div>
+        <div class="gauge-wrap">
+          <div class="gauge-track">
+            <div class="gauge-fill" [style.width.%]="Math.min(100, dti)"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <app-stat-card label="FI Number"      [value]="fs.fmtCr(fiNumber)"                      sub="25× annual expenses"        color="accent" />
+        <app-stat-card label="FI Progress"    [value]="fs.pct(fiProgress)"                       [sub]="fiStatus"                 [color]="fiProgress >= 100 ? 'green' : 'purple'" />
+        <app-stat-card label="Passive Income" [value]="fs.fmtCr(passiveIncome/12) + '/mo'"       sub="Return on investments"      color="green" />
+        <app-stat-card label="Years to FI"    [value]="yearsToFi <= 0 ? 'Now!' : (yearsToFi | number:'1.1-1') + ' yrs'" sub="At current rate" [color]="yearsToFi <= 5 ? 'green' : 'orange'" />
+        <app-stat-card label="PI Coverage"    [value]="fs.pct(piRatio)"                          sub="Passive vs expenses"        [color]="piRatio >= 100 ? 'green' : 'accent'" />
+        <app-stat-card label="Monthly Free"   [value]="fs.fmtCr(monthlyIncome - totalDebtMonthly - (annualExpenses/12))" sub="After debt & expenses" color="blue" />
+      </div>
+    </div>
+  </div>
+
+  <!-- DTI Zones -->
+  <div class="tool-card">
+    <div class="section-label">Debt Health Zones</div>
+    <div class="zones-grid">
+      <div *ngFor="let z of zones" class="zone" [class.zone-active]="isActiveZone(z)" [ngClass]="'zone-' + z.color">
+        <div class="zone-range">{{ z.range }} DTI</div>
+        <div class="zone-label">{{ z.label }}</div>
+        <div class="zone-desc">{{ z.desc }}</div>
+        <div class="zone-you" *ngIf="isActiveZone(z)">← You are here</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FI Roadmap -->
+  <div class="tool-card">
+    <div class="section-label">FI Roadmap</div>
+    <div class="roadmap">
+      <div class="roadmap-track">
+        <div class="roadmap-fill" [style.width.%]="fiProgress"></div>
+        <div class="roadmap-marker" [style.left.%]="fiProgress">
+          <div class="marker-dot"></div>
+          <div class="marker-label">{{ fs.pct(fiProgress) }}</div>
+        </div>
+      </div>
+      <div class="roadmap-labels">
+        <span>₹0</span>
+        <span>25% · {{ fs.fmtCr(fiNumber * 0.25) }}</span>
+        <span>50% · {{ fs.fmtCr(fiNumber * 0.5) }}</span>
+        <span>75% · {{ fs.fmtCr(fiNumber * 0.75) }}</span>
+        <span>FI · {{ fs.fmtCr(fiNumber) }}</span>
+      </div>
+    </div>
+  </div>
+</div>

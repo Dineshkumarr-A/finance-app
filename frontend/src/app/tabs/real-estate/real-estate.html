@@ -1,0 +1,50 @@
+<div class="tab-content">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Real Estate &amp; REIT Holdings</mat-card-title>
+      <mat-card-subtitle>All values in INR</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="asset-table">
+        <thead>
+          <tr><th>Asset</th><th class="amount-cell">Current Value (₹)</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Home (primary residence)</td>
+            <td class="amount-cell">
+              <input type="number" class="num-input" [value]="re.home"
+                     (change)="update('home', $any($event.target).value)" min="0"/>
+            </td>
+          </tr>
+          <tr>
+            <td>Other Real Estate</td>
+            <td class="amount-cell">
+              <input type="number" class="num-input" [value]="re.otherRealEstate"
+                     (change)="update('otherRealEstate', $any($event.target).value)" min="0"/>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              REITs
+              <a href="https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=34"
+                 target="_blank" class="reit-link" rel="noopener">
+                <mat-icon inline>open_in_new</mat-icon> Best REITs in India
+              </a>
+            </td>
+            <td class="amount-cell">
+              <input type="number" class="num-input" [value]="re.reits"
+                     (change)="update('reits', $any($event.target).value)" min="0"/>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="summary-tr">
+            <td><strong>Total</strong></td>
+            <td class="amount-cell positive"><strong>₹ {{ store.totalRealEstate() | number:'1.0-0' }}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

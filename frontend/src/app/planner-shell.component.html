@@ -1,0 +1,66 @@
+<mat-tab-group animationDuration="150ms" [dynamicHeight]="true">
+  <mat-tab>
+    <ng-template matTabLabel> <mat-icon class="tab-icon">analytics</mat-icon> Returns </ng-template>
+    <app-returns-assumption />
+  </mat-tab>
+
+  <mat-tab>
+    <ng-template matTabLabel>
+      <mat-icon class="tab-icon">account_balance_wallet</mat-icon> Cash Flows
+    </ng-template>
+    <app-cash-flows />
+  </mat-tab>
+
+  <mat-tab>
+    <ng-template matTabLabel> <mat-icon class="tab-icon">flag</mat-icon> Goals </ng-template>
+    <app-financial-goals />
+  </mat-tab>
+
+  <mat-tab>
+    <ng-template matTabLabel>
+      <mat-icon class="tab-icon">pie_chart</mat-icon> Net Worth
+    </ng-template>
+    <app-net-worth />
+  </mat-tab>
+
+  <mat-tab>
+    <ng-template matTabLabel> <mat-icon class="tab-icon">home</mat-icon> Real Estate </ng-template>
+    <app-real-estate />
+  </mat-tab>
+
+  <mat-tab>
+    <ng-template matTabLabel>
+      <mat-icon class="tab-icon">trending_up</mat-icon> Domestic Eq.
+    </ng-template>
+    <app-domestic-equity />
+  </mat-tab>
+
+  <mat-tab>
+    <ng-template matTabLabel> <mat-icon class="tab-icon">public</mat-icon> US Equity </ng-template>
+    <app-us-equity />
+  </mat-tab>
+
+  <mat-tab>
+    <ng-template matTabLabel>
+      <mat-icon class="tab-icon">account_balance</mat-icon> Debt
+    </ng-template>
+    <app-debt />
+  </mat-tab>
+
+  <mat-tab>
+    <ng-template matTabLabel> <mat-icon class="tab-icon">stars</mat-icon> Gold </ng-template>
+    <app-gold />
+  </mat-tab>
+
+  <mat-tab>
+    <ng-template matTabLabel>
+      <mat-icon class="tab-icon">currency_bitcoin</mat-icon> Crypto
+    </ng-template>
+    <app-crypto />
+  </mat-tab>
+
+  <mat-tab>
+    <ng-template matTabLabel> <mat-icon class="tab-icon">more_horiz</mat-icon> Misc. </ng-template>
+    <app-miscellaneous />
+  </mat-tab>
+</mat-tab-group>

@@ -1,0 +1,81 @@
+<div class="tool-page">
+  <div class="page-header">
+    <h1 class="page-title">📊 Index Fund Selector</h1>
+    <p class="page-desc">Find the best low-cost index funds for your risk profile and horizon</p>
+  </div>
+
+  <app-profile-bar />
+
+  <div class="top-grid">
+    <!-- Profile -->
+    <div class="tool-card">
+      <div class="section-label">Your Profile</div>
+      <div class="field">
+        <label class="field-label">Risk Tolerance</label>
+        <div class="btn-group">
+          <button *ngFor="let r of riskOptions" [class.active]="riskTolerance === r"
+            (click)="riskTolerance = r; applyFilters()">{{ r }}</button>
+        </div>
+      </div>
+      <div class="field" style="margin-top: 16px;">
+        <label class="field-label">Filter by Category</label>
+        <select [(ngModel)]="filterCat" (ngModelChange)="applyFilters()" class="select">
+          <option *ngFor="let c of categories">{{ c }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- SIP Projector -->
+    <div class="tool-card">
+      <div class="section-label">SIP Projector</div>
+      <div class="sip-inputs">
+        <app-input label="Duration"        [value]="years"     (valueChange)="setField({years: $event})"     [min]="1" [max]="40" suffix="yrs" />
+        <app-input label="Expected Return" [value]="returnPct" (valueChange)="setField({returnPct: $event})" [min]="5" [max]="30" [step]="0.5" suffix="%" />
+      </div>
+      <div class="sip-stats">
+        <app-stat-card label="Total Invested"  [value]="fs.fmtCr(sipInvested)"  color="accent" />
+        <app-stat-card label="Estimated Gains" [value]="fs.fmtCr(sipGains)"     color="green" />
+        <app-stat-card label="Maturity Value"  [value]="fs.fmtCr(sipCorpusVal)" color="purple" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Fund Table -->
+  <div class="tool-card">
+    <div class="section-label">
+      Index Funds <span class="count">{{ filteredFunds.length }} funds</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fund Name</th>
+            <th>Category</th>
+            <th (click)="setSort('expense')"    class="sortable">Expense   <span class="sort-icon" [class.active]="sortBy === 'expense'">{{ sortBy === 'expense' ? (sortAsc ? '↑' : '↓') : '⇅' }}</span></th>
+            <th>Tracking</th>
+            <th (click)="setSort('returns1yr')" class="sortable">1yr       <span class="sort-icon" [class.active]="sortBy === 'returns1yr'">{{ sortBy === 'returns1yr' ? (sortAsc ? '↑' : '↓') : '⇅' }}</span></th>
+            <th (click)="setSort('returns3yr')" class="sortable">3yr       <span class="sort-icon" [class.active]="sortBy === 'returns3yr'">{{ sortBy === 'returns3yr' ? (sortAsc ? '↑' : '↓') : '⇅' }}</span></th>
+            <th (click)="setSort('returns5yr')" class="sortable">5yr       <span class="sort-icon" [class.active]="sortBy === 'returns5yr'">{{ sortBy === 'returns5yr' ? (sortAsc ? '↑' : '↓') : '⇅' }}</span></th>
+            <th>Risk</th>
+            <th (click)="setSort('aum')"        class="sortable">AUM (Cr)  <span class="sort-icon" [class.active]="sortBy === 'aum'">{{ sortBy === 'aum' ? (sortAsc ? '↑' : '↓') : '⇅' }}</span></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of filteredFunds">
+            <td class="fund-name">{{ f.name }}</td>
+            <td class="muted">{{ f.category }}</td>
+            <td class="mono t-blue">{{ f.expense }}%</td>
+            <td class="mono muted">{{ f.tracking }}%</td>
+            <td class="mono t-orange">{{ f.returns1yr }}%</td>
+            <td class="mono t-green">{{ f.returns3yr }}%</td>
+            <td class="mono t-green bold">{{ f.returns5yr }}%</td>
+            <td><span class="risk-badge risk-{{ f.risk === 'Very High' ? 'veryhigh' : f.risk.toLowerCase() }}">{{ f.risk }}</span></td>
+            <td class="mono muted">{{ fs.fmt(f.aum) }}</td>
+            <td><span *ngIf="f.recommended" class="pick-badge">★ Top Pick</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

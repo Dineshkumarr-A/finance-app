@@ -1,0 +1,287 @@
+@use '@angular/material' as mat;
+
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+* { box-sizing: border-box; cursor: default; user-select: none; }
+
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: #eef2f7;
+  color: #1e293b;
+}
+
+/* Restore cursor + selection for interactive/entry elements */
+input, textarea, select { cursor: text; user-select: text; }
+a, button, [role="button"] { cursor: pointer; }
+
+/* ── Design Tokens ───────────────────────────────────────── */
+:root {
+  --clr-primary:      #1e3a5f;
+  --clr-primary-mid:  #2563eb;
+  --clr-accent:       #059669;
+  --clr-positive:     #059669;
+  --clr-negative:     #dc2626;
+  --clr-surface:      #ffffff;
+  --clr-border:       #e2e8f0;
+  --clr-header-bg:    #f1f5f9;
+  --clr-muted:        #64748b;
+  --clr-row-hover:    #f8fafc;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+}
+
+/* ── Layout ──────────────────────────────────────────────── */
+.tab-content {
+  padding: 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── Cards ───────────────────────────────────────────────── */
+mat-card {
+  margin-bottom: 20px !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  border: 1px solid var(--clr-border) !important;
+  background: var(--clr-surface) !important;
+}
+
+mat-card-header { padding-bottom: 4px !important; }
+
+mat-card-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--clr-primary) !important;
+  letter-spacing: -0.2px !important;
+}
+
+mat-card-subtitle {
+  font-size: 12px !important;
+  color: var(--clr-muted) !important;
+  margin-top: 2px !important;
+}
+
+/* ── Material table overrides ────────────────────────────── */
+.mat-mdc-table { width: 100%; }
+
+.mat-mdc-header-cell {
+  font-weight: 700 !important;
+  background: var(--clr-header-bg) !important;
+  color: #475569 !important;
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--clr-border) !important;
+}
+
+.mat-mdc-cell { padding: 4px 10px !important; }
+.mat-mdc-row:hover .mat-mdc-cell { background: var(--clr-row-hover); }
+
+/* ── Summary rows ────────────────────────────────────────── */
+.summary-row {
+  background: #eff6ff;
+  font-weight: 700;
+}
+.summary-row td {
+  border-top: 2px solid #bfdbfe !important;
+  color: var(--clr-primary) !important;
+  font-weight: 700;
+}
+
+/* ── Utility helpers ─────────────────────────────────────── */
+.positive { color: var(--clr-positive); font-weight: 700; }
+.negative { color: var(--clr-negative); font-weight: 700; }
+.amount-cell { text-align: right !important; font-variant-numeric: tabular-nums; }
+
+.pct-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 20px;
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.return-chip {
+  background: var(--clr-primary);
+  color: #fff;
+  padding: 5px 18px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.2px;
+}
+
+/* ── Warning / info banners ──────────────────────────────── */
+.warning-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid var(--clr-negative);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  color: #991b1b;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.info-banner {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 20px;
+  padding: 3px 10px;
+  color: #92400e;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+/* ── Section header ──────────────────────────────────────── */
+.section-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--clr-muted);
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--clr-border);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* ── Reference table ─────────────────────────────────────── */
+.reference-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  th {
+    background: var(--clr-header-bg);
+    padding: 10px 12px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 11px;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--clr-border);
+  }
+
+  td {
+    padding: 8px 12px;
+    text-align: center;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+  }
+
+  tbody tr:hover td { background: var(--clr-row-hover); }
+}
+
+/* ── Goals table ─────────────────────────────────────────── */
+.goals-table td, .goals-table th { padding: 2px 6px !important; font-size: 13px; }
+.goals-table input { font-size: 13px; width: 100%; }
+
+.footer-total { background: #ecfdf5; font-weight: 700; color: #065f46; }
+.footer-max   { background: #eff6ff; font-weight: 700; color: var(--clr-primary); }
+.footer-avail { background: #f5f3ff; font-weight: 700; }
+.footer-avail.danger { background: #fef2f2; color: var(--clr-negative); }
+
+/* ── Layout helpers ──────────────────────────────────────── */
+.two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* ── Prevent text cursor on UI chrome ────────────────────── */
+mat-card-title, mat-card-subtitle,
+.section-header, .section-label,
+.page-title, .page-desc,
+.pct-badge, .return-chip,
+.info-banner, .warning-banner {
+  user-select: none;
+  cursor: default;
+}
+
+/* ── Tab labels ──────────────────────────────────────────── */
+.mat-mdc-tab-labels { overflow-x: auto; }
+.mat-mdc-tab-header { user-select: none; }
+.mat-mdc-tab { cursor: pointer !important; }
+.mat-mdc-tab .mdc-tab__text-label {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.2px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+/* ── Tool pages (FIRE, FI/Debt, Funds, Budget) ───────────── */
+.tool-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-header { margin-bottom: 4px; }
+
+.page-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--clr-primary);
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
+}
+
+.page-desc {
+  font-size: 13px;
+  color: var(--clr-muted);
+  margin: 0;
+}
+
+.tool-card {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 20px 24px;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--clr-muted);
+  margin-bottom: 14px;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .two-col-grid { grid-template-columns: 1fr; }
+  .tab-content { padding: 14px; }
+  .tool-page { padding: 14px; }
+}

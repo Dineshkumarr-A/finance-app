@@ -1,0 +1,18 @@
+<div class="tab-content">
+  <mat-card>
+    <mat-card-header><mat-card-title>US / International Equity Holdings</mat-card-title>
+      <mat-card-subtitle>All values in INR (converted equivalent)</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="asset-table">
+        <thead><tr><th>Instrument</th><th class="amount-cell">Current Value (₹)</th></tr></thead>
+        <tbody>
+          <tr><td>S&amp;P 500 ETF</td><td class="amount-cell"><input type="number" class="num-input" [value]="ue.sp500Etf" (change)="update('sp500Etf', $any($event.target).value)" min="0"/></td></tr>
+          <tr><td>Other ETFs (Nasdaq, World, etc.)</td><td class="amount-cell"><input type="number" class="num-input" [value]="ue.otherEtfs" (change)="update('otherEtfs', $any($event.target).value)" min="0"/></td></tr>
+          <tr><td>US Mutual Funds</td><td class="amount-cell"><input type="number" class="num-input" [value]="ue.usMutualFunds" (change)="update('usMutualFunds', $any($event.target).value)" min="0"/></td></tr>
+        </tbody>
+        <tfoot><tr class="summary-tr"><td><strong>Total</strong></td><td class="amount-cell positive"><strong>₹ {{ store.totalUsEquity() | number:'1.0-0' }}</strong></td></tr></tfoot>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

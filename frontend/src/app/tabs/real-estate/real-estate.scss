@@ -1,0 +1,83 @@
+.asset-table {
+  width: 100%;
+  max-width: 620px;
+  border-collapse: collapse;
+
+  th {
+    background: #f1f5f9;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+    text-align: left;
+  }
+
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+    color: #334155;
+  }
+
+  tbody tr:hover td { background: #f8fafc; }
+
+  tfoot td {
+    background: #eff6ff;
+    border-top: 2px solid #bfdbfe;
+    font-weight: 700;
+    color: #1e3a5f;
+    padding: 10px 12px;
+  }
+}
+
+.num-input {
+  width: 155px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 14px;
+  text-align: right;
+  background: #fff;
+  color: #1e293b;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+}
+
+.summary-tr td {
+  border-top: 2px solid #bfdbfe;
+  background: #eff6ff;
+  font-weight: 700;
+  color: #1e3a5f;
+  padding: 10px 12px;
+}
+
+.reit-link {
+  margin-left: 12px;
+  font-size: 12px;
+  color: #2563eb;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #dbeafe;
+    text-decoration: none;
+  }
+}

@@ -1,0 +1,17 @@
+<div class="tab-content">
+  <mat-card>
+    <mat-card-header><mat-card-title>Miscellaneous Holdings</mat-card-title>
+      <mat-card-subtitle>Financial products not tracked in other tabs</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <table class="asset-table">
+        <thead><tr><th>Asset</th><th class="amount-cell">Current Value (₹)</th></tr></thead>
+        <tbody>
+          <tr><td>ULIPs / Other insurance products</td><td class="amount-cell"><input type="number" class="num-input" [value]="m.ulips" (change)="update('ulips', $any($event.target).value)" min="0"/></td></tr>
+          <tr><td>Small Case</td><td class="amount-cell"><input type="number" class="num-input" [value]="m.smallCase" (change)="update('smallCase', $any($event.target).value)" min="0"/></td></tr>
+        </tbody>
+        <tfoot><tr class="summary-tr"><td><strong>Total</strong></td><td class="amount-cell positive"><strong>₹ {{ store.totalMisc() | number:'1.0-0' }}</strong></td></tr></tfoot>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>
