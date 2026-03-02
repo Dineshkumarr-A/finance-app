@@ -7,7 +7,7 @@ import { PlannerState } from '../models/planner.model';
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:3000/api';
+  private baseUrl = '/api';
 
   loadPlan(): Observable<PlannerState | null> {
     return this.http.get<PlannerState>(`${this.baseUrl}/plan`).pipe(

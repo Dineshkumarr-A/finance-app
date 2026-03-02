@@ -7,6 +7,7 @@ An 11-tab Indian financial planning app built with Angular 21 + Node.js/Express 
 - Node.js 18+
 - PostgreSQL 14+ (running locally or remote)
 - npm
+- Docker (optional, for containerized setup)
 
 ## Setup
 
@@ -37,6 +38,25 @@ npx ng serve     # starts on http://localhost:4200
 ```
 
 Open **http://localhost:4200** in your browser.
+
+## Run With Docker
+
+From repo root:
+
+```bash
+docker compose up --build
+```
+
+Services:
+- Frontend: http://localhost:4200
+- Backend API: http://localhost:3000
+- PostgreSQL: localhost:5432 (db: `finance_planner`, user: `postgres`, password: `postgres`)
+
+Stop containers:
+
+```bash
+docker compose down
+```
 
 ---
 
