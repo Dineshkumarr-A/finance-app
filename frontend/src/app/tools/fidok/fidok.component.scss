@@ -511,3 +511,13 @@
 .zone-label { font-size: 15px; font-weight: 800; color: #1e293b; margin: 4px 0; }
 .zone-desc  { font-size: 12px; color: #64748b; line-height: 1.4; }
 .zone-you   { font-size: 11px; font-weight: 700; color: #2563eb; margin-top: 8px; }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .inputs-grid { grid-template-columns: 1fr; }
+  .alloc-grid { flex-direction: column; }
+  .alloc-divider-v { width: 100%; height: 1px; margin: 16px 0; }
+  .flow-row { flex-wrap: wrap; justify-content: center; gap: 6px; }
+  .flow-node { min-width: 0; width: 100%; max-width: 260px; }
+  .dti-value { font-size: 2.4rem; }
+}

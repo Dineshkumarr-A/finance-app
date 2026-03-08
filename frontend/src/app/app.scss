@@ -105,3 +105,14 @@
 
 /* ── Router outlet fills remaining height ────────────────── */
 router-outlet + * { display: block; }
+
+/* ── Mobile toolbar ──────────────────────────────────────── */
+@media (max-width: 600px) {
+  .app-toolbar { padding: 0 12px !important; }
+  .app-subtitle { display: none; }
+  .app-title { font-size: 14px; }
+  .app-logo { width: 34px; height: 34px; font-size: 17px; }
+  .app-brand { gap: 10px; }
+  .nav-link { padding: 6px 10px; font-size: 12px; }
+  .save-status { padding: 4px 8px; font-size: 11px; }
+}

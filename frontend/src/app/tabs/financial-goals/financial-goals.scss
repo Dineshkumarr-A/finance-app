@@ -853,3 +853,46 @@ td.sip-overridden .sip-override-input {
   color: #92400e;
   font-weight: 800;
 }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Summary chips */
+  .goals-summary { gap: 10px; }
+  .gs-chip { min-width: 140px; padding: 14px 16px; }
+  .gs-value { font-size: 18px; }
+
+  /* Totals bar: stack rows */
+  .goals-totals-bar { flex-direction: column; gap: 0; }
+  .gtb-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-right: none;
+    margin-right: 0;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+    &:last-of-type { border-bottom: none; }
+    &.gtb-danger-bg { margin: 0; padding: 8px 10px; border-radius: 0; }
+  }
+  .gtb-spacer { display: none; }
+  .gtb-value { font-size: 13px; }
+  .col-toggles {
+    align-self: stretch;
+    justify-content: flex-end;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  /* SIP allocator */
+  .sip-alloc-legend { min-width: 0; width: 100%; }
+  .sip-alloc-item { grid-template-columns: 10px 76px 1fr 76px 40px; gap: 6px; }
+  .sip-alloc-svg { width: 160px; height: 160px; }
+
+  /* Progress dashboard chips */
+  .prog-summary { gap: 8px; }
+  .prog-chip { min-width: 100px; padding: 12px 14px; }
+  .prog-chip-val { font-size: 17px; }
+
+  /* Goal cards: single column */
+  .goal-cards-grid { grid-template-columns: 1fr; }
+}

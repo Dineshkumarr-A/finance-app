@@ -284,4 +284,10 @@ mat-card-title, mat-card-subtitle,
   .two-col-grid { grid-template-columns: 1fr; }
   .tab-content { padding: 14px; }
   .tool-page { padding: 14px; }
+  .page-title { font-size: 18px; }
+}
+
+@media (max-width: 600px) {
+  .tab-content { padding: 12px; }
+  .tool-page { padding: 12px; }
 }
