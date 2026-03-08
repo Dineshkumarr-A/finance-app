@@ -130,10 +130,13 @@ export interface GoalData {
   name: string;
   priority: number | null;
   timeYears: number | null;
+  timeMonths: number | null;   // 0–11 additional months on top of timeYears
   amountToday: number | null;
   amountAvailable: number | null;
   inflationPct: number | null;
   sipStepUpPct: number | null;
+  completed?: boolean;   // true = goal achieved; SIP freed and redirected to FI
+  startDate?: string | null; // ISO date string (YYYY-MM-DD) when SIP started
 }
 
 // ── Root planner state ────────────────────────────────────────────────────────
@@ -227,10 +230,12 @@ export const DEFAULT_GOALS: GoalData[] = Array.from({ length: 15 }, () => ({
   name: '',
   priority: null,
   timeYears: null,
+  timeMonths: null,
   amountToday: null,
   amountAvailable: null,
   inflationPct: null,
   sipStepUpPct: null,
+  completed: false,
 }));
 
 export const DEFAULT_DEBT_ROWS = (): DebtHoldingRow[] =>

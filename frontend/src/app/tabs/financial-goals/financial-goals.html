@@ -27,39 +27,87 @@
       <mat-card-subtitle>Enter goal details · SIP is auto-calculated using blended returns from Tab 1</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
+
+      <!-- Totals bar (replaces tfoot) -->
+      <div class="goals-totals-bar">
+        <div class="gtb-item">
+          <span class="gtb-label">Goal Amount Today</span>
+          <span class="gtb-value">₹ {{ totalAmountToday() | number:'1.0-0' }}</span>
+        </div>
+        <div class="gtb-item">
+          <span class="gtb-label">Total Initial Fund</span>
+          <span class="gtb-value">₹ {{ totalAvailableToday() | number:'1.0-0' }}</span>
+        </div>
+        <div class="gtb-item">
+          <span class="gtb-label">Total SIP Required</span>
+          <span class="gtb-value" [class.gtb-danger]="sipExceeds()">₹ {{ totalSip() | number:'1.0-0' }}</span>
+        </div>
+        <div class="gtb-item" [class.gtb-danger-bg]="available() < 0">
+          <span class="gtb-label">Surplus After SIPs</span>
+          <span class="gtb-value" [class.gtb-danger]="available() < 0" [class.gtb-ok]="available() >= 0">₹ {{ available() | number:'1.0-0' }}</span>
+        </div>
+        <div class="gtb-spacer"></div>
+        <!-- Column toggles -->
+        <div class="col-toggles">
+          <button class="col-toggle" [class.active]="showAdvanced" (click)="showAdvanced = !showAdvanced">
+            Settings {{ showAdvanced ? '▲' : '▼' }}
+          </button>
+          <button class="col-toggle" [class.active]="showAllocation" (click)="showAllocation = !showAllocation">
+            Allocation {{ showAllocation ? '▲' : '▼' }}
+          </button>
+        </div>
+      </div>
+
       <div class="goals-scroll">
         <table class="goals-table-el">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Goal Name</th>
+              <th class="sticky-col sticky-col-1">#</th>
+              <th class="sticky-col sticky-col-2">Goal Name</th>
               <th>Priority</th>
-              <th>Years</th>
+              <th>Yrs</th>
+              <th>Mo</th>
+              <th>Start Date</th>
+              <th>End By</th>
               <th>Type</th>
               <th class="amount-cell">Amt Today (₹)</th>
-              <th class="amount-cell">Available (₹)</th>
-              <th class="amount-cell">Inflation %</th>
-              <th class="amount-cell">Step-Up %</th>
-              <th class="amount-cell">Future Value</th>
+              <th class="amount-cell">Initial Fund (₹)</th>
+              <th class="amount-cell">Saved Today (₹)</th>
+              @if (showAdvanced) {
+                <th class="amount-cell">Inflation %</th>
+                <th class="amount-cell">Step-Up %</th>
+                <th class="amount-cell">Future Value</th>
+              }
               <th class="amount-cell">Monthly SIP</th>
-              <th class="amount-cell">Dom.Eq</th>
-              <th class="amount-cell">US Eq</th>
-              <th class="amount-cell">Debt</th>
-              <th class="amount-cell">Gold</th>
-              <th class="amount-cell">Crypto</th>
-              <th class="amount-cell">RE/REIT</th>
+              @if (showAllocation) {
+                <th class="amount-cell">Dom.Eq</th>
+                <th class="amount-cell">US Eq</th>
+                <th class="amount-cell">Debt</th>
+                <th class="amount-cell">Gold</th>
+                <th class="amount-cell">Crypto</th>
+                <th class="amount-cell">RE/REIT</th>
+              }
             </tr>
           </thead>
           <tbody>
             @for (g of computedGoals(); track $index; let i = $index) {
               <tr [class.active-row]="g.raw.name">
-                <td class="row-num">{{ i + 1 }}</td>
-                <td><input class="goal-text-input" [value]="g.raw.name"
-                     (change)="update(i, 'name', $any($event.target).value)" placeholder="e.g. Retirement"/></td>
+                <td class="row-num sticky-col sticky-col-1">{{ i + 1 }}</td>
+                <td class="sticky-col sticky-col-2">
+                  <input class="goal-text-input" [value]="g.raw.name"
+                     (change)="update(i, 'name', $any($event.target).value)" placeholder="e.g. Retirement"/>
+                </td>
                 <td><input type="number" class="goal-num-input sm" [value]="g.raw.priority ?? ''"
                      (change)="update(i, 'priority', $any($event.target).value)" min="1" placeholder="1"/></td>
                 <td><input type="number" class="goal-num-input sm" [value]="g.raw.timeYears ?? ''"
                      (change)="update(i, 'timeYears', $any($event.target).value)" min="0" placeholder="10"/></td>
+                <td><input type="number" class="goal-num-input sm" [value]="g.raw.timeMonths ?? ''"
+                     (change)="update(i, 'timeMonths', $any($event.target).value)" min="0" max="11" placeholder="0"/></td>
+                <td><input type="date" class="goal-date-tbl"
+                     [value]="g.raw.startDate ?? ''"
+                     (change)="update(i, 'startDate', $any($event.target).value)"
+                     title="SIP start date" /></td>
+                <td class="computed-cell end-by-cell">{{ g.endByDate ?? '—' }}</td>
                 <td class="horizon-cell">
                   @if (g.horizon) {
                     <span class="horizon-badge" [class]="g.horizon">{{ horizonLabel[g.horizon] }}</span>
@@ -69,51 +117,264 @@
                      (change)="update(i, 'amountToday', $any($event.target).value)" min="0" placeholder="0"/></td>
                 <td class="amount-cell"><input type="number" class="goal-num-input" [value]="g.raw.amountAvailable ?? ''"
                      (change)="update(i, 'amountAvailable', $any($event.target).value)" min="0" placeholder="0"/></td>
-                <td class="amount-cell"><input type="number" class="goal-num-input sm" [value]="g.raw.inflationPct ?? ''"
-                     (change)="update(i, 'inflationPct', $any($event.target).value)" min="0" max="30" placeholder="6"/></td>
-                <td class="amount-cell"><input type="number" class="goal-num-input sm" [value]="g.raw.sipStepUpPct ?? ''"
-                     (change)="update(i, 'sipStepUpPct', $any($event.target).value)" min="0" max="50" placeholder="10"/></td>
-                <td class="amount-cell computed-cell">{{ fmtFv(g) }}</td>
+                <td class="amount-cell computed-cell saved-cell">{{ fmtSaved(g) }}</td>
+                @if (showAdvanced) {
+                  <td class="amount-cell"><input type="number" class="goal-num-input sm" [value]="g.raw.inflationPct ?? ''"
+                       (change)="update(i, 'inflationPct', $any($event.target).value)" min="0" max="30" placeholder="6"/></td>
+                  <td class="amount-cell"><input type="number" class="goal-num-input sm" [value]="g.raw.sipStepUpPct ?? ''"
+                       (change)="update(i, 'sipStepUpPct', $any($event.target).value)" min="0" max="50" placeholder="10"/></td>
+                  <td class="amount-cell computed-cell">{{ fmtFv(g) }}</td>
+                }
                 <td class="amount-cell computed-cell sip-cell">{{ fmtSip(g) }}</td>
-                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.domesticEquity) }}</td>
-                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.usEquity) }}</td>
-                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.debt) }}</td>
-                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.gold) }}</td>
-                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.crypto) }}</td>
-                <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.realEstate) }}</td>
+                @if (showAllocation) {
+                  <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.domesticEquity) }}</td>
+                  <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.usEquity) }}</td>
+                  <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.debt) }}</td>
+                  <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.gold) }}</td>
+                  <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.crypto) }}</td>
+                  <td class="amount-cell computed-cell">{{ fmtAlloc(g.allocation?.realEstate) }}</td>
+                }
               </tr>
             }
           </tbody>
-          <tfoot>
-            <!-- Total row -->
-            <tr class="footer-total">
-              <td colspan="5"><strong>Total</strong></td>
-              <td class="amount-cell"><strong>₹ {{ totalAmountToday() | number:'1.0-0' }}</strong></td>
-              <td class="amount-cell"><strong>₹ {{ totalAvailableToday() | number:'1.0-0' }}</strong></td>
-              <td colspan="3"></td>
-              <td class="amount-cell"><strong>₹ {{ totalSip() | number:'1.0-0' }}</strong></td>
-              <td class="amount-cell">₹ {{ totalAllocSip().domesticEquity | number:'1.0-0' }}</td>
-              <td class="amount-cell">₹ {{ totalAllocSip().usEquity | number:'1.0-0' }}</td>
-              <td class="amount-cell">₹ {{ totalAllocSip().debt | number:'1.0-0' }}</td>
-              <td class="amount-cell">₹ {{ totalAllocSip().gold | number:'1.0-0' }}</td>
-              <td class="amount-cell">₹ {{ totalAllocSip().crypto | number:'1.0-0' }}</td>
-              <td class="amount-cell">₹ {{ totalAllocSip().realEstate | number:'1.0-0' }}</td>
-            </tr>
-            <!-- Max row -->
-            <tr class="footer-max">
-              <td colspan="10"><strong>Max (Monthly Investing Surplus from Tab 2)</strong></td>
-              <td class="amount-cell"><strong>₹ {{ surplus() | number:'1.0-0' }}</strong></td>
-              <td colspan="6"></td>
-            </tr>
-            <!-- Available row -->
-            <tr class="footer-avail" [class.danger]="available() < 0">
-              <td colspan="10"><strong>Available</strong></td>
-              <td class="amount-cell"><strong>₹ {{ available() | number:'1.0-0' }}</strong></td>
-              <td colspan="6"></td>
-            </tr>
-          </tfoot>
         </table>
       </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Smart SIP Allocator -->
+  <mat-card class="sip-allocator-card">
+    <mat-card-header>
+      <mat-card-title>Smart SIP Allocator</mat-card-title>
+      <mat-card-subtitle>Asset allocation optimised per goal's time horizon · Short = more debt · Long = more equity</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      @if (sipAllocChart().total > 0) {
+        <div class="sip-alloc-content">
+
+          <!-- Donut chart -->
+          <div class="sip-alloc-chart-wrap">
+            <svg class="sip-alloc-svg" viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#f1f5f9" stroke-width="28"/>
+              <g transform="rotate(-90 100 100)">
+                @for (seg of sipAllocChart().segments; track seg.label) {
+                  <circle cx="100" cy="100" r="80" fill="none"
+                          [attr.stroke]="seg.color" stroke-width="28"
+                          [attr.stroke-dasharray]="seg.dashArray"
+                          [attr.stroke-dashoffset]="seg.dashOffset"/>
+                }
+              </g>
+              <text x="100" y="90" text-anchor="middle" font-size="11" fill="#94a3b8">Total SIP</text>
+              <text x="100" y="110" text-anchor="middle" font-size="15" font-weight="800" fill="#1e293b">
+                ₹ {{ totalSip() | number:'1.0-0' }}
+              </text>
+              <text x="100" y="126" text-anchor="middle" font-size="10" fill="#94a3b8">/month</text>
+            </svg>
+          </div>
+
+          <!-- Allocation breakdown legend -->
+          <div class="sip-alloc-legend">
+            @for (seg of sipAllocChart().segments; track seg.label) {
+              <div class="sip-alloc-item">
+                <span class="sip-alloc-dot" [style.background]="seg.color"></span>
+                <span class="sip-alloc-label">{{ seg.label }}</span>
+                <div class="sip-alloc-bar-wrap">
+                  <div class="sip-alloc-bar" [style.width.%]="seg.pct" [style.background]="seg.color"></div>
+                </div>
+                <span class="sip-alloc-amount">₹ {{ seg.value | number:'1.0-0' }}</span>
+                <span class="sip-alloc-pct">{{ seg.pct | number:'1.1-1' }}%</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Per-goal breakdown table -->
+        @if (sipAllocChart().goalRows.length > 0) {
+          <div class="sip-alloc-breakdown">
+            <div class="sip-alloc-breakdown-title">Per-Goal Allocation Breakdown</div>
+            <div class="sip-alloc-tbl-wrap">
+              <table class="sip-alloc-tbl">
+                <thead>
+                  <tr>
+                    <th>Goal</th>
+                    <th>Type</th>
+                    <th>Monthly SIP</th>
+                    <th style="color:#6366f1">Dom. Equity</th>
+                    <th style="color:#3b82f6">US Equity</th>
+                    <th style="color:#10b981">Debt</th>
+                    <th style="color:#f59e0b">Gold</th>
+                    <th style="color:#8b5cf6">Crypto</th>
+                    <th style="color:#ef4444">RE/REIT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of sipAllocChart().goalRows; track row.name) {
+                    <tr>
+                      <td class="sip-alloc-tbl-name">{{ row.name }}</td>
+                      <td>
+                        @if (row.horizon) {
+                          <span class="horizon-badge" [class]="row.horizon">{{ horizonLabel[row.horizon] }}</span>
+                        }
+                      </td>
+                      <td class="sip-alloc-tbl-num sip-alloc-tbl-sip">₹ {{ row.sip | number:'1.0-0' }}</td>
+                      <td class="sip-alloc-tbl-num">₹ {{ row.alloc.domesticEquity | number:'1.0-0' }}</td>
+                      <td class="sip-alloc-tbl-num">₹ {{ row.alloc.usEquity | number:'1.0-0' }}</td>
+                      <td class="sip-alloc-tbl-num">₹ {{ row.alloc.debt | number:'1.0-0' }}</td>
+                      <td class="sip-alloc-tbl-num">₹ {{ row.alloc.gold | number:'1.0-0' }}</td>
+                      <td class="sip-alloc-tbl-num">₹ {{ row.alloc.crypto | number:'1.0-0' }}</td>
+                      <td class="sip-alloc-tbl-num">₹ {{ row.alloc.realEstate | number:'1.0-0' }}</td>
+                    </tr>
+                  }
+                </tbody>
+                <tfoot>
+                  <tr class="sip-alloc-tbl-total">
+                    <td colspan="2"><strong>Total</strong></td>
+                    <td class="sip-alloc-tbl-num"><strong>₹ {{ totalSip() | number:'1.0-0' }}</strong></td>
+                    <td class="sip-alloc-tbl-num"><strong>₹ {{ totalAllocSip().domesticEquity | number:'1.0-0' }}</strong></td>
+                    <td class="sip-alloc-tbl-num"><strong>₹ {{ totalAllocSip().usEquity | number:'1.0-0' }}</strong></td>
+                    <td class="sip-alloc-tbl-num"><strong>₹ {{ totalAllocSip().debt | number:'1.0-0' }}</strong></td>
+                    <td class="sip-alloc-tbl-num"><strong>₹ {{ totalAllocSip().gold | number:'1.0-0' }}</strong></td>
+                    <td class="sip-alloc-tbl-num"><strong>₹ {{ totalAllocSip().crypto | number:'1.0-0' }}</strong></td>
+                    <td class="sip-alloc-tbl-num"><strong>₹ {{ totalAllocSip().realEstate | number:'1.0-0' }}</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="sip-alloc-empty">Add goals with amounts and time horizon to see your smart allocation.</div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Goals Progress Dashboard -->
+  <mat-card class="prog-dashboard-card">
+    <mat-card-header>
+      <mat-card-title>Goals Progress Dashboard</mat-card-title>
+      <mat-card-subtitle>Track funding progress · check off completed goals to redirect SIP to FI corpus</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+
+      <!-- Summary chips -->
+      <div class="prog-summary">
+        <div class="prog-chip prog-chip-blue">
+          <div class="prog-chip-val">{{ activeGoalCount() }}</div>
+          <div class="prog-chip-lbl">Active Goals</div>
+        </div>
+        <div class="prog-chip prog-chip-green">
+          <div class="prog-chip-val">{{ completedGoalCount() }}</div>
+          <div class="prog-chip-lbl">Completed</div>
+        </div>
+        <div class="prog-chip prog-chip-red">
+          <div class="prog-chip-val">₹ {{ totalSip() | number:'1.0-0' }}</div>
+          <div class="prog-chip-lbl">Total Active SIP/mo</div>
+        </div>
+        @if (freedSips() > 0) {
+          <div class="prog-chip prog-chip-green">
+            <div class="prog-chip-val">₹ {{ freedSips() | number:'1.0-0' }}</div>
+            <div class="prog-chip-lbl">Freed → FI/mo</div>
+          </div>
+        }
+      </div>
+
+      <!-- Goal cards grid -->
+      <div class="goal-cards-grid">
+        @for (g of computedGoals(); track $index; let i = $index) {
+          @if (g.raw.name) {
+            <div class="goal-card" [class.goal-card-done]="g.isCompleted">
+
+              <div class="goal-card-header">
+                <label class="goal-card-check-wrap">
+                  <input type="checkbox" class="goal-card-check"
+                         [checked]="g.isCompleted"
+                         (change)="toggleComplete(i)" />
+                  <span class="goal-card-name" [class.goal-card-name-done]="g.isCompleted">{{ g.raw.name }}</span>
+                </label>
+                @if (g.raw.priority) {
+                  <span class="goal-priority-badge">#{{ g.raw.priority }}</span>
+                }
+              </div>
+
+              <div class="goal-card-badges">
+                @if (g.horizon) {
+                  <span class="horizon-badge" [class]="g.horizon">{{ horizonLabel[g.horizon] }}</span>
+                }
+                @if (g.raw.timeYears || g.raw.timeMonths) {
+                  <span class="goal-years-badge">
+                    {{ g.raw.timeYears ? g.raw.timeYears + 'yr' : '' }}{{ (g.raw.timeYears && g.raw.timeMonths) ? ' ' : '' }}{{ g.raw.timeMonths ? g.raw.timeMonths + 'mo' : '' }}
+                  </span>
+                }
+              </div>
+
+              <!-- Start date picker -->
+              <div class="goal-date-row">
+                <label class="goal-date-lbl">SIP started</label>
+                <input type="date" class="goal-date-input"
+                       [value]="g.raw.startDate ?? ''"
+                       (change)="update(i, 'startDate', $any($event.target).value)"
+                       title="Date you started this SIP" />
+              </div>
+
+              <!-- Funding progress bar (toward total goal corpus) -->
+              <div class="goal-card-prog-label-row">
+                <span class="goal-card-prog-section-lbl">Funding Progress</span>
+                <span class="goal-card-prog-pct">
+                  @if (g.isCompleted) { ✓ Completed } @else { {{ g.progress | number:'1.0-0' }}% }
+                </span>
+              </div>
+              <div class="goal-card-prog-track">
+                <div class="goal-card-prog-fill"
+                     [style.width.%]="g.isCompleted ? 100 : g.progress"
+                     [class.prog-done]="g.isCompleted || g.progress >= 100"
+                     [class.prog-mid]="!g.isCompleted && g.progress >= 50 && g.progress < 100"
+                     [class.prog-low]="!g.isCompleted && g.progress < 50">
+                </div>
+              </div>
+
+              <!-- Monthly tracking: shown when SIP start date is set -->
+              @if (g.monthsElapsed > 0) {
+                <div class="goal-monthly-track">
+                  <span class="goal-monthly-badge">📅 {{ g.monthsElapsed }} month{{ g.monthsElapsed === 1 ? '' : 's' }} invested</span>
+                </div>
+              }
+
+              <!-- Amounts: initial fund → saved today (computed) → target FV -->
+              <div class="goal-card-amounts">
+                <div class="goal-card-amt">
+                  <div class="goal-card-amt-lbl">Initial Fund</div>
+                  <input type="number" class="goal-card-amt-input"
+                         [value]="g.raw.amountAvailable ?? ''"
+                         placeholder="0"
+                         (change)="update(i, 'amountAvailable', $any($event.target).value)"
+                         min="0" title="Initial lump sum for this goal (reduces SIP needed)"/>
+                </div>
+                <div class="goal-card-amt-arrow">→</div>
+                <div class="goal-card-amt">
+                  <div class="goal-card-amt-lbl">Saved Today</div>
+                  <div class="goal-card-amt-val">{{ fmtSaved(g) }}</div>
+                </div>
+                <div class="goal-card-amt-arrow">→</div>
+                <div class="goal-card-amt">
+                  <div class="goal-card-amt-lbl">Target FV</div>
+                  <div class="goal-card-amt-val target">{{ fmtFv(g) }}</div>
+                </div>
+              </div>
+
+              <!-- Footer: SIP or freed badge -->
+              <div class="goal-card-footer">
+                @if (g.isCompleted) {
+                  <span class="goal-freed-tag">✓ ₹ {{ (g.monthlySip ?? 0) | number:'1.0-0' }}/mo freed → FI</span>
+                } @else if (g.monthlySip) {
+                  <span class="goal-sip-tag">₹ {{ g.monthlySip | number:'1.0-0' }}/mo SIP</span>
+                }
+              </div>
+
+            </div>
+          }
+        }
+      </div>
+
     </mat-card-content>
   </mat-card>
 

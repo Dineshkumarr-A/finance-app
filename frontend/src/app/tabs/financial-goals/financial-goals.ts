@@ -21,6 +21,9 @@ export class FinancialGoalsComponent {
   store = inject(PlannerStore);
   horizonLabel = HORIZON_LABEL;
 
+  showAdvanced  = false;
+  showAllocation = false;
+
   computedGoals = computed(() => this.store.computedGoals());
   totalSip      = computed(() => this.store.totalSip());
   surplus       = computed(() => this.store.investingSurplus());
@@ -33,6 +36,25 @@ export class FinancialGoalsComponent {
   totalAvailableToday = computed(() =>
     this.store.goals().reduce((s, g) => s + (g.amountAvailable ?? 0), 0)
   );
+
+  // ── Progress dashboard ────────────────────────────────────────────────────
+  freedSips         = computed(() => this.store.freedGoalSips());
+  activeGoalCount   = computed(() =>
+    this.computedGoals().filter(g => g.raw.name && !g.isCompleted && (g.monthlySip ?? 0) > 0).length
+  );
+  completedGoalCount = computed(() =>
+    this.computedGoals().filter(g => g.raw.name && g.isCompleted).length
+  );
+
+  toggleComplete(idx: number): void {
+    this.store.toggleGoalComplete(idx);
+  }
+
+  progColor(g: ComputedGoal): string {
+    if (g.isCompleted || g.progress >= 100) return 'prog-done';
+    if (g.progress >= 50) return 'prog-mid';
+    return 'prog-low';
+  }
 
   totalAllocSip = computed(() => {
     const goals = this.computedGoals();
@@ -50,9 +72,50 @@ export class FinancialGoalsComponent {
     return result;
   });
 
+  // ── Smart SIP Allocator chart data ────────────────────────────────────────
+  sipAllocChart = computed(() => {
+    const alloc = this.totalAllocSip();
+    const total = this.totalSip();
+    const r = 80;
+    const C = 2 * Math.PI * r;
+
+    const items = [
+      { label: 'Dom. Equity', value: alloc.domesticEquity, color: '#6366f1' },
+      { label: 'US Equity',   value: alloc.usEquity,       color: '#3b82f6' },
+      { label: 'Debt',        value: alloc.debt,           color: '#10b981' },
+      { label: 'Gold',        value: alloc.gold,           color: '#f59e0b' },
+      { label: 'Crypto',      value: alloc.crypto,         color: '#8b5cf6' },
+      { label: 'RE/REIT',     value: alloc.realEstate,     color: '#ef4444' },
+    ];
+
+    let cumPct = 0;
+    const segments = items
+      .filter(item => total > 0 && item.value > 0)
+      .map(item => {
+        const pct = item.value / total;
+        const dashLen = Math.max(0, pct * C - 3);
+        const offset = -(cumPct * C);
+        cumPct += pct;
+        return { label: item.label, value: item.value, color: item.color,
+                 pct: pct * 100, dashArray: `${dashLen} ${C}`, dashOffset: offset };
+      });
+
+    // Per-goal breakdown rows
+    const goalRows = this.computedGoals()
+      .filter(g => g.raw.name && g.allocation)
+      .map(g => ({
+        name: g.raw.name,
+        horizon: g.horizon,
+        sip: g.monthlySip ?? 0,
+        alloc: g.allocation!,
+      }));
+
+    return { segments, total, r, goalRows };
+  });
+
   update(idx: number, field: keyof GoalData, val: string): void {
     const goals = JSON.parse(JSON.stringify(this.store.goals())) as GoalData[];
-    const numFields: (keyof GoalData)[] = ['priority', 'timeYears', 'amountToday', 'amountAvailable', 'inflationPct', 'sipStepUpPct'];
+    const numFields: (keyof GoalData)[] = ['priority', 'timeYears', 'timeMonths', 'amountToday', 'amountAvailable', 'inflationPct', 'sipStepUpPct'];
     if (numFields.includes(field)) {
       (goals[idx] as any)[field] = val === '' ? null : parseFloat(val);
     } else {
@@ -72,5 +135,9 @@ export class FinancialGoalsComponent {
   fmtAlloc(v: number | undefined): string {
     if (!v) return '₹0';
     return '₹ ' + Math.round(v).toLocaleString('en-IN');
+  }
+  fmtSaved(g: ComputedGoal): string {
+    if (g.monthsElapsed === 0 || g.expectedAccumulated === 0) return '—';
+    return '₹ ' + Math.round(g.expectedAccumulated).toLocaleString('en-IN');
   }
 }

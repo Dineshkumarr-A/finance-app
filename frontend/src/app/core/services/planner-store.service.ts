@@ -17,12 +17,44 @@ function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
 
+/** Months elapsed from a stored ISO date string to today (0 if absent/invalid). */
+function calcMonthsElapsed(startDate: string | null | undefined): number {
+  if (!startDate) return 0;
+  const start = new Date(startDate);
+  if (isNaN(start.getTime())) return 0;
+  const now = new Date();
+  return Math.max(0, (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth()));
+}
+
+/** Future value of a regular monthly SIP over `months` months at `annualReturnPct`. */
+function calcExpectedAccumulated(sip: number, months: number, annualReturnPct: number): number {
+  if (months <= 0 || sip <= 0) return 0;
+  const r = Math.pow(1 + annualReturnPct / 100, 1 / 12) - 1;
+  if (r <= 0) return sip * months;
+  return sip * (Math.pow(1 + r, months) - 1) / r;
+}
+
+/** End date = startDate + effectiveYears, formatted as "Mon YYYY". Returns null if inputs are missing. */
+function calcEndByDate(startDate: string | null | undefined, effectiveYears: number): string | null {
+  if (!startDate || effectiveYears <= 0) return null;
+  const start = new Date(startDate);
+  if (isNaN(start.getTime())) return null;
+  const end = new Date(start);
+  end.setMonth(end.getMonth() + Math.round(effectiveYears * 12));
+  return end.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+}
+
 // ── Derived goal row ──────────────────────────────────────────────────────────
 export interface ComputedGoal {
   raw: GoalData;
   horizon: TimeHorizon | null;
   futureAmount: number | null;
   monthlySip: number | null;
+  progress: number;              // 0–100: how much of the corpus is already funded (availableFv / futureAmount)
+  isCompleted: boolean;          // goal achieved — SIP freed for FI
+  monthsElapsed: number;         // months since startDate (0 if no startDate set)
+  expectedAccumulated: number;   // corpus expected from regular SIP payments since startDate
+  endByDate: string | null;      // formatted end date = startDate + effectiveYears
   allocation: {
     domesticEquity: number;
     usEquity: number;
@@ -137,21 +169,32 @@ export class PlannerStore {
     const br = this.blendedReturns();
     const ra = this.returnsAssumption();
     return this.goals().map((g): ComputedGoal => {
-      if (!g.timeYears || !g.amountToday || g.timeYears <= 0) {
-        return { raw: g, horizon: null, futureAmount: null, monthlySip: null, allocation: null };
+      const isCompleted = g.completed ?? false;
+      const effectiveYears = (g.timeYears ?? 0) + (g.timeMonths ?? 0) / 12;
+      if (!g.amountToday || effectiveYears <= 0) {
+        return { raw: g, horizon: null, futureAmount: null, monthlySip: null, progress: 0, isCompleted, monthsElapsed: 0, expectedAccumulated: 0, endByDate: null, allocation: null };
       }
-      const horizon = goalType(g.timeYears);
+      const horizon = goalType(effectiveYears);
       const annualReturn = br[horizon];
-      const fv = futureValue(g.amountToday, g.inflationPct ?? 0, g.timeYears);
-      const availableFv = (g.amountAvailable ?? 0) * Math.pow(1 + annualReturn / 100, g.timeYears);
+      const fv = futureValue(g.amountToday, g.inflationPct ?? 0, effectiveYears);
+      const availableFv = (g.amountAvailable ?? 0) * Math.pow(1 + annualReturn / 100, effectiveYears);
       const gap = Math.max(0, fv - availableFv);
-      const sip = monthlySIP(gap, annualReturn, g.sipStepUpPct ?? 0, g.timeYears);
+      const sip = monthlySIP(gap, annualReturn, g.sipStepUpPct ?? 0, effectiveYears);
+      const progress = fv > 0 ? Math.min(100, (availableFv / fv) * 100) : 0;
+      const monthsElapsed = calcMonthsElapsed(g.startDate);
+      const expectedAccumulated = calcExpectedAccumulated(sip, monthsElapsed, annualReturn);
+      const endByDate = calcEndByDate(g.startDate, effectiveYears);
       const alloc = ra.allocation;
       return {
         raw: g,
         horizon,
         futureAmount: fv,
         monthlySip: sip,
+        progress,
+        isCompleted,
+        monthsElapsed,
+        expectedAccumulated,
+        endByDate,
         allocation: {
           domesticEquity: sip * alloc.domesticEquity[horizon] / 100,
           usEquity:       sip * alloc.usEquity[horizon] / 100,
@@ -164,9 +207,23 @@ export class PlannerStore {
     });
   });
 
+  // Active goal SIPs (excludes completed goals)
   totalSip = computed(() =>
-    this.computedGoals().reduce((s, g) => s + (g.monthlySip ?? 0), 0)
+    this.computedGoals().reduce((s, g) => g.isCompleted ? s : s + (g.monthlySip ?? 0), 0)
   );
+
+  // SIPs freed from completed goals — redirected to FI
+  freedGoalSips = computed(() =>
+    this.computedGoals().reduce((s, g) => g.isCompleted ? s + (g.monthlySip ?? 0) : s, 0)
+  );
+
+  toggleGoalComplete(index: number): void {
+    this.goals.update(goals => {
+      const updated = [...goals];
+      updated[index] = { ...updated[index], completed: !(updated[index].completed ?? false) };
+      return updated;
+    });
+  }
 
   // ── Load plan from backend ────────────────────────────────────────────────
   loadPlan(): void {

@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { MatTabsModule } from '@angular/material/tabs';
+import { Component, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 import { ReturnsAssumptionComponent } from './tabs/returns-assumption/returns-assumption';
@@ -14,11 +13,14 @@ import { CryptoComponent } from './tabs/crypto/crypto';
 import { MiscellaneousComponent } from './tabs/miscellaneous/miscellaneous';
 import { FinancialGoalsComponent } from './tabs/financial-goals/financial-goals';
 
+export type PlannerSection =
+  'goals' | 'returns' | 'cashflows' | 'networth' |
+  'realEstate' | 'domEquity' | 'usEquity' | 'debt' | 'gold' | 'crypto' | 'misc';
+
 @Component({
   selector: 'app-planner-shell',
   standalone: true,
   imports: [
-    MatTabsModule,
     MatIconModule,
     ReturnsAssumptionComponent,
     CashFlowsComponent,
@@ -33,5 +35,9 @@ import { FinancialGoalsComponent } from './tabs/financial-goals/financial-goals'
     FinancialGoalsComponent,
   ],
   templateUrl: './planner-shell.component.html',
+  styleUrl: './planner-shell.component.scss',
 })
-export class PlannerShellComponent {}
+export class PlannerShellComponent {
+  section = signal<PlannerSection>('goals');
+  nav(s: PlannerSection) { this.section.set(s); }
+}

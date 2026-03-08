@@ -6,71 +6,303 @@
 
   <app-profile-bar />
 
+  <!-- Validation warnings ────────────────────────────────────────────────── -->
+  @if (showEmiWarning) {
+    <div class="alert alert-danger">
+      ⚠️ EMI (₹{{ fs.fmt(monthlyEMI) }}) cannot exceed your income (₹{{ fs.fmt(monthlyIncome) }}).
+    </div>
+  }
+  @if (showDeficitWarning) {
+    <div class="alert alert-warning">
+      ⚠️ EMI + Spending exceeds your income. You are running a monthly deficit.
+    </div>
+  }
+
+  <!-- Top row: inputs + DTI ───────────────────────────────────────────────── -->
   <div class="top-grid">
+
     <div class="tool-card">
-      <div class="section-label">Investments & Return</div>
+      <div class="section-label">Investment Inputs</div>
       <div class="inputs-grid">
-        <app-input label="Other Monthly Debts" [value]="otherDebts"       (valueChange)="setField({otherDebts: $event})"       [step]="500"    prefix="₹" />
-        <app-input label="Investable Assets"   [value]="investableAssets" (valueChange)="setField({investableAssets: $event})" [step]="100000" prefix="₹" />
-        <app-input label="Expected Return"     [value]="returnPct"        (valueChange)="setField({returnPct: $event})"        [min]="1" [max]="25" [step]="0.5" suffix="%" />
+        <app-input label="Other Monthly Debts"    [value]="otherDebts"        (valueChange)="setField({otherDebts: $event})"        [step]="500"    prefix="₹" />
+        <app-input label="Investable Assets"      [value]="investableAssets"  (valueChange)="setField({investableAssets: $event})"  [step]="100000" prefix="₹" />
+        <app-input label="Expected Return (p.a.)" [value]="returnPct"         (valueChange)="setField({returnPct: $event})"         [min]="1" [max]="25" [step]="0.5" suffix="%" />
+      </div>
+      <div class="indian-note">📌 Indian banks prefer DTI below 40%. DTI &gt; 50% risks loan rejection.</div>
+    </div>
+
+    <div class="tool-card dti-card">
+      <div class="section-label">Debt-to-Income Ratio</div>
+      <div class="dti-value" [ngClass]="debtColor">{{ fs.pct(dti) }}</div>
+      <div class="dti-badge" [ngClass]="'badge-' + debtColor">{{ debtStatus }}</div>
+      <div class="dti-message">{{ dtiMessage }}</div>
+      <div class="dti-detail">₹{{ fs.fmt(totalDebtMonthly) }} / month on debt out of ₹{{ fs.fmt(monthlyIncome) }} income</div>
+      <div class="gauge-wrap">
+        <div class="gauge-track">
+          <div class="gauge-fill" [style.width.%]="Math.min(100, dti)"></div>
+        </div>
+        <div class="gauge-ticks">
+          <span>0%</span><span>20%</span><span>35%</span><span>50%</span><span>100%</span>
+        </div>
       </div>
     </div>
 
-    <div class="stats-col">
-      <div class="tool-card dti-card">
-        <div class="section-label">Debt-to-Income Ratio</div>
-        <div class="dti-value" [ngClass]="debtColor">{{ fs.pct(dti) }}</div>
-        <div class="dti-status" [ngClass]="debtColor">{{ debtStatus }}</div>
-        <div class="dti-detail">₹{{ fs.fmt(totalDebtMonthly) }} / month on debt out of ₹{{ fs.fmt(Math.round(monthlyIncome)) }} income</div>
-        <div class="gauge-wrap">
-          <div class="gauge-track">
-            <div class="gauge-fill" [style.width.%]="Math.min(100, dti)"></div>
+  </div>
+
+  <!-- Monthly money flow ──────────────────────────────────────────────────── -->
+  <div class="tool-card">
+    <div class="section-label">Monthly Money Flow</div>
+    <div class="flow-vis">
+
+      <div class="flow-node flow-income">
+        <div class="flow-lbl">Monthly Income</div>
+        <div class="flow-val">₹{{ fs.fmt(monthlyIncome) }}</div>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-row">
+        <div class="flow-node flow-out">
+          <div class="flow-lbl">EMI</div>
+          <div class="flow-val flow-red">−₹{{ fs.fmt(monthlyEMI) }}</div>
+        </div>
+        <div class="flow-divider">+</div>
+        <div class="flow-node flow-out">
+          <div class="flow-lbl">Spending</div>
+          <div class="flow-val flow-red">−₹{{ fs.fmt(monthlySpending) }}</div>
+        </div>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-node flow-surplus" [class.flow-surplus-neg]="!surplusPositive">
+        <div class="flow-lbl">Net Surplus (Free Cash)</div>
+        <div class="flow-val" [class.flow-green]="surplusPositive" [class.flow-red]="!surplusPositive">
+          {{ surplusDisplay }}
+        </div>
+        <div class="flow-sub">{{ surplusPositive ? 'Available to invest' : 'Monthly deficit' }}</div>
+      </div>
+
+      @if (totalGoalSips > 0 && surplusPositive) {
+        <div class="flow-arrow">↓</div>
+        <div class="flow-row">
+          <div class="flow-node flow-out">
+            <div class="flow-lbl">Goals ({{ goalRows.length }})</div>
+            <div class="flow-val flow-red">−₹{{ fs.fmt(totalGoalSips) }}</div>
+          </div>
+          <div class="flow-divider">→</div>
+          <div class="flow-node flow-fi" [class.flow-surplus-neg]="fiSurplus <= 0">
+            <div class="flow-lbl">For FI Corpus</div>
+            <div class="flow-val" [class.flow-green]="fiSurplus > 0" [class.flow-red]="fiSurplus <= 0">
+              ₹{{ fs.fmt(fiSurplus) }}
+            </div>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- Surplus allocation breakdown ───────────────────────────────────────── -->
+  @if (goalRows.length > 0) {
+    <div class="tool-card">
+      <div class="section-label">Surplus Allocation — ₹{{ fs.fmt(monthlySurplus) }} / month</div>
+      <div class="alloc-grid">
+
+        <!-- Left: Goal list with progress + completion toggle -->
+        <div class="alloc-col alloc-goals-col">
+          <div class="alloc-col-header">
+            <span class="alloc-col-title">Goals ({{ goalRows.length }})</span>
+            <span class="alloc-col-total red">−₹{{ fs.fmt(totalGoalSips) }}/mo active</span>
+          </div>
+
+          @for (g of goalRows; track g.originalIndex) {
+            <div class="goal-row" [class.goal-done]="g.isCompleted">
+
+              <div class="goal-row-top">
+                <label class="goal-check-wrap">
+                  <input type="checkbox" class="goal-check"
+                         [checked]="g.isCompleted"
+                         (change)="toggleGoal(g.originalIndex)" />
+                  <span class="goal-name" [class.goal-name-done]="g.isCompleted">{{ g.name }}</span>
+                </label>
+                @if (g.isCompleted) {
+                  <span class="goal-freed-badge">✓ ₹{{ fs.fmt(g.sip) }}/mo freed</span>
+                } @else {
+                  <span class="goal-sip-amt">₹{{ fs.fmt(g.sip) }}/mo</span>
+                }
+              </div>
+
+              <div class="goal-prog-bar">
+                <div class="goal-prog-fill"
+                     [style.width.%]="g.isCompleted ? 100 : g.progress"
+                     [class.prog-done]="g.isCompleted || g.progress >= 100"
+                     [class.prog-mid]="!g.isCompleted && g.progress >= 50 && g.progress < 100"
+                     [class.prog-low]="!g.isCompleted && g.progress < 50">
+                </div>
+              </div>
+              <div class="goal-prog-lbl">
+                @if (g.isCompleted) { Goal completed } @else { {{ fs.pct(g.progress, 0) }} funded }
+              </div>
+
+            </div>
+          }
+        </div>
+
+        <div class="alloc-divider-v"></div>
+
+        <!-- Right: FI Corpus summary -->
+        <div class="alloc-col alloc-fi-col">
+          <div class="alloc-col-header">
+            <span class="alloc-col-title">For FI Corpus</span>
+            <span class="alloc-col-total" [class.green]="fiSurplus > 0" [class.red]="fiSurplus <= 0">
+              ₹{{ fs.fmt(fiSurplus) }}/mo
+            </span>
+          </div>
+
+          @if (freedGoalSips > 0) {
+            <div class="freed-banner">
+              🎯 <strong>₹{{ fs.fmt(freedGoalSips) }}/mo</strong> redirected from
+              {{ completedGoalCount }} completed goal(s) → FI
+            </div>
+          }
+
+          <div class="alloc-fi-note">
+            @if (fiSurplus > 0) {
+              After funding all active goals,
+              <strong>₹{{ fs.fmt(fiSurplus) }}</strong> goes towards your FI corpus each month.
+            } @else {
+              All surplus is consumed by goals. Complete or reduce goals to free up FI contributions.
+            }
+          </div>
+
+          <div class="alloc-fi-breakdown">
+            <div class="alloc-fi-line">
+              <span>Monthly Surplus</span>
+              <span>₹{{ fs.fmt(monthlySurplus) }}</span>
+            </div>
+            <div class="alloc-fi-line deduct">
+              <span>− Active Goal SIPs</span>
+              <span>₹{{ fs.fmt(totalGoalSips) }}</span>
+            </div>
+            @if (freedGoalSips > 0) {
+              <div class="alloc-fi-line freed">
+                <span>+ Freed (completed goals)</span>
+                <span>₹{{ fs.fmt(freedGoalSips) }}</span>
+              </div>
+            }
+            <div class="alloc-fi-line total">
+              <span>= FI Contribution</span>
+              <span [class.green]="fiSurplus > 0" [class.red]="fiSurplus <= 0">₹{{ fs.fmt(fiSurplus) }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- Key metrics ─────────────────────────────────────────────────────────── -->
+  <div class="stats-grid-4">
+    <app-stat-card
+      label="Monthly Surplus"
+      [value]="surplusDisplay"
+      sub="Income − EMI − Spending"
+      [color]="surplusPositive ? 'green' : 'red'" />
+
+    <div matTooltip="FI = 25 × Annual Expenses (4% rule)" matTooltipPosition="above">
+      <app-stat-card
+        label="FI Number"
+        [value]="fs.fmtCr(fiNumber)"
+        sub="25× annual expenses"
+        color="accent" />
+    </div>
+
+    <app-stat-card
+      label="FI Progress"
+      [value]="fs.pct(fiProgress)"
+      [sub]="fiStatus"
+      [color]="fiProgress >= 100 ? 'green' : fiProgress > 0 ? 'purple' : 'accent'" />
+
+    <app-stat-card
+      label="Years to FI"
+      [value]="!hasSurplusTimeline ? '—' : yearsToFiSurplus <= 0 ? 'Now!' : (yearsToFiSurplus | number:'1.1-1') + ' yrs'"
+      [sub]="totalGoalSips > 0 ? 'After funding ' + goalRows.length + ' goals' : 'At current surplus rate'"
+      [color]="!hasSurplusTimeline ? 'accent' : yearsToFiSurplus <= 10 ? 'green' : 'orange'" />
+  </div>
+
+  <!-- FI progress bar ─────────────────────────────────────────────────────── -->
+  <div class="tool-card">
+    <div class="section-label">FI Progress — ₹{{ fs.fmt(investableAssets) }} of {{ fs.fmtCr(fiNumber) }}</div>
+    <div class="fi-track">
+      <div class="fi-fill" [style.width.%]="fiProgress"></div>
+      <div class="fi-marker" [style.left.%]="Math.min(98, fiProgress)">
+        <div class="fi-dot"></div>
+        <div class="fi-marker-lbl">{{ fs.pct(fiProgress) }}</div>
+      </div>
+    </div>
+    <div class="fi-milestones">
+      <span>₹0</span>
+      <span>25% · {{ fs.fmtCr(fiNumber * 0.25) }}</span>
+      <span>50% · {{ fs.fmtCr(fiNumber * 0.5) }}</span>
+      <span>75% · {{ fs.fmtCr(fiNumber * 0.75) }}</span>
+      <span>FI · {{ fs.fmtCr(fiNumber) }}</span>
+    </div>
+
+    @if (investableAssets === 0) {
+      <div class="fi-msg fi-msg-info">
+        💡 Start investing your surplus of <strong>₹{{ fs.fmt(monthlySurplus) }}/month</strong> to build your FI corpus.
+      </div>
+    }
+
+    @if (hasSurplusTimeline && yearsToFiSurplus > 0 && fiSurplus > 0) {
+      <div class="fi-msg fi-msg-success">
+        📈 At <strong>₹{{ fs.fmt(fiSurplus) }}/month</strong> invested towards FI
+        @if (totalGoalSips > 0) {
+          <span class="fi-msg-goals"> (after ₹{{ fs.fmt(totalGoalSips) }} for goals)</span>
+        }
+        , you can reach FI in <strong>{{ yearsToFiSurplus | number:'1.1-1' }} years</strong> at {{ returnPct }}% returns.
+      </div>
+    }
+  </div>
+
+  <!-- Actionable insights (only when DTI > 50%) ───────────────────────────── -->
+  @if (showActionable) {
+    <div class="tool-card insights-card">
+      <div class="section-label">⚡ Actionable Insights — DTI is in Danger zone</div>
+      <div class="insights-grid">
+        <div class="insight">
+          <div class="insight-title">Option 1 — Reduce EMI</div>
+          <div class="insight-body">
+            Reduce total EMI below <strong>₹{{ fs.fmt(Math.round(targetEmi)) }}</strong> to reach 40% DTI
+          </div>
+        </div>
+        <div class="insight-or">OR</div>
+        <div class="insight">
+          <div class="insight-title">Option 2 — Increase Income</div>
+          <div class="insight-body">
+            Increase income to <strong>₹{{ fs.fmt(Math.round(targetIncome)) }}</strong> to bring DTI to safe zone
           </div>
         </div>
       </div>
-
-      <div class="stats-grid">
-        <app-stat-card label="FI Number"      [value]="fs.fmtCr(fiNumber)"                      sub="25× annual expenses"        color="accent" />
-        <app-stat-card label="FI Progress"    [value]="fs.pct(fiProgress)"                       [sub]="fiStatus"                 [color]="fiProgress >= 100 ? 'green' : 'purple'" />
-        <app-stat-card label="Passive Income" [value]="fs.fmtCr(passiveIncome/12) + '/mo'"       sub="Return on investments"      color="green" />
-        <app-stat-card label="Years to FI"    [value]="yearsToFi <= 0 ? 'Now!' : (yearsToFi | number:'1.1-1') + ' yrs'" sub="At current rate" [color]="yearsToFi <= 5 ? 'green' : 'orange'" />
-        <app-stat-card label="PI Coverage"    [value]="fs.pct(piRatio)"                          sub="Passive vs expenses"        [color]="piRatio >= 100 ? 'green' : 'accent'" />
-        <app-stat-card label="Monthly Free"   [value]="fs.fmtCr(monthlyIncome - totalDebtMonthly - (annualExpenses/12))" sub="After debt & expenses" color="blue" />
-      </div>
     </div>
-  </div>
+  }
 
-  <!-- DTI Zones -->
+  <!-- DTI Health Zones ────────────────────────────────────────────────────── -->
   <div class="tool-card">
     <div class="section-label">Debt Health Zones</div>
     <div class="zones-grid">
-      <div *ngFor="let z of zones" class="zone" [class.zone-active]="isActiveZone(z)" [ngClass]="'zone-' + z.color">
-        <div class="zone-range">{{ z.range }} DTI</div>
-        <div class="zone-label">{{ z.label }}</div>
-        <div class="zone-desc">{{ z.desc }}</div>
-        <div class="zone-you" *ngIf="isActiveZone(z)">← You are here</div>
-      </div>
+      @for (z of zones; track z.label) {
+        <div class="zone" [class.zone-active]="isActiveZone(z)" [ngClass]="'zone-' + z.color">
+          <div class="zone-range">{{ z.range }} DTI</div>
+          <div class="zone-label">{{ z.label }}</div>
+          <div class="zone-desc">{{ z.desc }}</div>
+          @if (isActiveZone(z)) {
+            <div class="zone-you">← You are here</div>
+          }
+        </div>
+      }
     </div>
   </div>
 
-  <!-- FI Roadmap -->
-  <div class="tool-card">
-    <div class="section-label">FI Roadmap</div>
-    <div class="roadmap">
-      <div class="roadmap-track">
-        <div class="roadmap-fill" [style.width.%]="fiProgress"></div>
-        <div class="roadmap-marker" [style.left.%]="fiProgress">
-          <div class="marker-dot"></div>
-          <div class="marker-label">{{ fs.pct(fiProgress) }}</div>
-        </div>
-      </div>
-      <div class="roadmap-labels">
-        <span>₹0</span>
-        <span>25% · {{ fs.fmtCr(fiNumber * 0.25) }}</span>
-        <span>50% · {{ fs.fmtCr(fiNumber * 0.5) }}</span>
-        <span>75% · {{ fs.fmtCr(fiNumber * 0.75) }}</span>
-        <span>FI · {{ fs.fmtCr(fiNumber) }}</span>
-      </div>
-    </div>
-  </div>
 </div>

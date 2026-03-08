@@ -1,32 +1,21 @@
 <!-- Toolbar -->
 <mat-toolbar class="app-toolbar">
-  <div class="app-brand">
+  <a routerLink="/" class="app-brand">
     <div class="app-logo">₹</div>
     <div class="app-title-group">
       <span class="app-title">Personal Financial Planner</span>
       <span class="app-subtitle">Track · Plan · Grow</span>
     </div>
-  </div>
+  </a>
+
+  <span class="spacer"></span>
 
   <nav class="app-nav">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-link">
-      <mat-icon>dashboard</mat-icon> Planner
-    </a>
-    <a routerLink="/fire" routerLinkActive="active" class="nav-link">
-      <mat-icon>local_fire_department</mat-icon> FIRE
-    </a>
     <a routerLink="/fidok" routerLinkActive="active" class="nav-link">
       <mat-icon>speed</mat-icon> FI / Debt
     </a>
-    <a routerLink="/funds" routerLinkActive="active" class="nav-link">
-      <mat-icon>bar_chart</mat-icon> Funds
-    </a>
-    <a routerLink="/budget" routerLinkActive="active" class="nav-link">
-      <mat-icon>account_balance_wallet</mat-icon> Budget
-    </a>
   </nav>
 
-  <span class="spacer"></span>
   <span class="save-status" [class]="saveStatus">
     @switch (saveStatus) {
       @case ('saving') { <mat-icon>sync</mat-icon> Saving… }
