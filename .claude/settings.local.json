@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npx ng build --no-progress)",
       "Bash(npx ng build --configuration=development)",
-      "Bash(npx ng build --configuration development)"
+      "Bash(npx ng build --configuration development)",
+      "Bash(npm install bcryptjs jsonwebtoken)",
+      "Bash(npm install -D @types/bcryptjs @types/jsonwebtoken)"
     ]
   }
 }

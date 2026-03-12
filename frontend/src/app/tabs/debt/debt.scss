@@ -127,6 +127,13 @@
   }
 }
 
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .num-input  { width: 100px; font-size: 13px; padding: 4px 8px; }
+  .text-input { width: 110px; font-size: 12px; }
+  .select-input { font-size: 12px; max-width: 90px; }
+}
+
 .total-card {
   background: linear-gradient(135deg, #fff7ed 0%, #eff6ff 100%) !important;
   border-left: 4px solid #f59e0b !important;

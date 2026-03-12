@@ -1,9 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
 
 import { PlannerStore } from './core/services/planner-store.service';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -14,16 +16,14 @@ import { PlannerStore } from './core/services/planner-store.service';
     RouterLinkActive,
     MatIconModule,
     MatToolbarModule,
+    MatButtonModule,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App implements OnInit {
+export class App {
   store = inject(PlannerStore);
-
-  ngOnInit(): void {
-    this.store.loadPlan();
-  }
+  auth = inject(AuthService);
 
   get saveStatus() { return this.store.saveStatus(); }
 }

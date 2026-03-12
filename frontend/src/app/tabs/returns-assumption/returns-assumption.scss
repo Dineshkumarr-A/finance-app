@@ -107,3 +107,9 @@
   text-transform: uppercase;
   letter-spacing: 0.6px;
 }
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .blended-item { min-width: 90px; padding: 12px 16px; }
+  .blended-chips { gap: 10px; }
+}

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 
 import { ReturnsAssumptionComponent } from './tabs/returns-assumption/returns-assumption';
@@ -12,6 +12,7 @@ import { GoldComponent } from './tabs/gold/gold';
 import { CryptoComponent } from './tabs/crypto/crypto';
 import { MiscellaneousComponent } from './tabs/miscellaneous/miscellaneous';
 import { FinancialGoalsComponent } from './tabs/financial-goals/financial-goals';
+import { PlannerStore } from './core/services/planner-store.service';
 
 export type PlannerSection =
   'goals' | 'returns' | 'cashflows' | 'networth' |
@@ -37,7 +38,13 @@ export type PlannerSection =
   templateUrl: './planner-shell.component.html',
   styleUrl: './planner-shell.component.scss',
 })
-export class PlannerShellComponent {
+export class PlannerShellComponent implements OnInit {
+  private store = inject(PlannerStore);
   section = signal<PlannerSection>('goals');
+
+  ngOnInit(): void {
+    this.store.loadPlan();
+  }
+
   nav(s: PlannerSection) { this.section.set(s); }
 }

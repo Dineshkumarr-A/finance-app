@@ -1,13 +1,17 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { pool } from '../db/connection';
+import { requireAuth, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-// GET /api/plan — load the saved plan
-router.get('/', async (_req: Request, res: Response) => {
+router.use(requireAuth);
+
+// GET /api/plan — load the saved plan for the authenticated user
+router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const result = await pool.query(
-      'SELECT plan_data FROM planner_plan ORDER BY updated_at DESC LIMIT 1'
+      'SELECT plan_data FROM planner_plan WHERE user_id = $1',
+      [req.userId]
     );
     if (result.rows.length === 0) {
       return res.json(null);
@@ -19,17 +23,17 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-// POST /api/plan — upsert the full plan
-router.post('/', async (req: Request, res: Response) => {
+// POST /api/plan — upsert the full plan for the authenticated user
+router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const planData = req.body;
     await pool.query(
-      `INSERT INTO planner_plan (plan_data, updated_at)
-       VALUES ($1, NOW())
-       ON CONFLICT ((true)) DO UPDATE
+      `INSERT INTO planner_plan (user_id, plan_data, updated_at)
+       VALUES ($1, $2, NOW())
+       ON CONFLICT (user_id) DO UPDATE
          SET plan_data = EXCLUDED.plan_data,
              updated_at = NOW()`,
-      [planData]
+      [req.userId, planData]
     );
     return res.json({ success: true });
   } catch (err) {

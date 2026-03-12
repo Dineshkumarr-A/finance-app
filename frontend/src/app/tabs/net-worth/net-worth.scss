@@ -120,3 +120,10 @@
 .comparison-table td:nth-child(4),
 .comparison-table th:nth-child(5),
 .comparison-table td:nth-child(5) { background: #f8fafc; }
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .num-input { width: 110px; font-size: 13px; padding: 4px 8px; }
+  .nw-chip { min-width: 140px; padding: 14px 16px; }
+  .nw-chip-value { font-size: 18px; }
+}

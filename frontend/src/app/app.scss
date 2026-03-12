@@ -103,6 +103,16 @@
   &.active { color: #fff; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.25); }
 }
 
+/* ── Logout button ───────────────────────────────────────── */
+.logout-btn {
+  color: rgba(255, 255, 255, 0.75) !important;
+  margin-left: 8px;
+
+  &:hover { color: #fff !important; background: rgba(255, 255, 255, 0.1) !important; }
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
 /* ── Router outlet fills remaining height ────────────────── */
 router-outlet + * { display: block; }
 

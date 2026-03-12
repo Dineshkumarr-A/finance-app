@@ -86,3 +86,31 @@
   color: rgba(255, 255, 255, 0.4);
   font-style: italic;
 }
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .flow-table {
+    table-layout: fixed;
+    width: 100%;
+
+    .flow-label { width: 55%; font-size: 13px; }
+    .flow-input { width: 45%; white-space: normal; }
+  }
+
+  .rupee { margin-right: 3px; font-size: 12px; }
+
+  .num-input {
+    width: calc(100% - 18px);
+    min-width: 70px;
+    font-size: 13px;
+    padding: 4px 6px;
+  }
+
+  .surplus-row {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .surplus-value { font-size: 22px; }
+}

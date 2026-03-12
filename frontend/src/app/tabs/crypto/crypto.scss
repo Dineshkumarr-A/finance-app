@@ -42,3 +42,10 @@
   color: #334155;
   padding: 4px 0;
 }
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .crypto-row { flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .crypto-label { min-width: 0; font-size: 14px; flex: 1 1 100%; }
+  .num-input { width: 100%; font-size: 14px; box-sizing: border-box; }
+}

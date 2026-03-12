@@ -2,6 +2,7 @@
 .planner-layout {
   display: flex;
   height: calc(100vh - 68px);
+  height: calc(100dvh - 68px); /* Safari: adjusts to dynamic address bar */
   overflow: hidden;
   background: #f8fafc;
 }
@@ -84,6 +85,7 @@
 .planner-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 24px;
   min-width: 0;
 }
@@ -100,11 +102,16 @@
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
+    /* iOS Safari: push nav above home indicator and URL bar */
     padding: 6px 8px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
     border-right: none;
     border-top: 1px solid #e2e8f0;
     gap: 2px;
-    /* hide dividers + group labels in horizontal mode */
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* hide scrollbar on Firefox */
+    &::-webkit-scrollbar { display: none; } /* hide scrollbar on Chrome/Safari */
+
     .sb-group-label,
     .sb-divider { display: none; }
   }
@@ -113,13 +120,14 @@
     order: 1;
     flex: 1;
     min-height: 0;
-    padding: 16px;
+    padding: 12px;
+    overflow-x: hidden;
   }
 
   .sb-item {
     flex-direction: column;
     align-items: center;
-    padding: 6px 10px;
+    padding: 6px 12px;
     min-width: max-content;
     gap: 2px;
     font-size: 10px;
@@ -127,8 +135,12 @@
     mat-icon { font-size: 20px; width: 20px; height: 20px; }
     &.sb-sub {
       font-size: 10px;
-      padding-left: 10px;
+      padding-left: 12px;
       mat-icon { font-size: 18px; width: 18px; height: 18px; }
     }
   }
+}
+
+@media (max-width: 480px) {
+  .planner-content { padding: 8px; }
 }

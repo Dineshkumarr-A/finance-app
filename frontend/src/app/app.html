@@ -10,20 +10,26 @@
 
   <span class="spacer"></span>
 
-  <nav class="app-nav">
-    <a routerLink="/fidok" routerLinkActive="active" class="nav-link">
-      <mat-icon>speed</mat-icon> FI / Debt
-    </a>
-  </nav>
+  @if (auth.isAuthenticated()) {
+    <nav class="app-nav">
+      <a routerLink="/fidok" routerLinkActive="active" class="nav-link">
+        <mat-icon>speed</mat-icon> FI / Debt
+      </a>
+    </nav>
 
-  <span class="save-status" [class]="saveStatus">
-    @switch (saveStatus) {
-      @case ('saving') { <mat-icon>sync</mat-icon> Saving… }
-      @case ('saved')  { <mat-icon>check_circle</mat-icon> Saved }
-      @case ('error')  { <mat-icon>error</mat-icon> Save failed }
-      @default {}
-    }
-  </span>
+    <span class="save-status" [class]="saveStatus">
+      @switch (saveStatus) {
+        @case ('saving') { <mat-icon>sync</mat-icon> Saving… }
+        @case ('saved')  { <mat-icon>check_circle</mat-icon> Saved }
+        @case ('error')  { <mat-icon>error</mat-icon> Save failed }
+        @default {}
+      }
+    </span>
+
+    <button mat-icon-button class="logout-btn" (click)="auth.logout()" title="Logout">
+      <mat-icon>logout</mat-icon>
+    </button>
+  }
 </mat-toolbar>
 
 <router-outlet />

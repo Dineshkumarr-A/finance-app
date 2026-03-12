@@ -282,12 +282,23 @@ mat-card-title, mat-card-subtitle,
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 768px) {
   .two-col-grid { grid-template-columns: 1fr; }
-  .tab-content { padding: 14px; }
-  .tool-page { padding: 14px; }
+  .tab-content { padding: 12px; }
+  .tool-page { padding: 12px; }
   .page-title { font-size: 18px; }
+  mat-card { margin-bottom: 12px !important; }
 }
 
 @media (max-width: 600px) {
-  .tab-content { padding: 12px; }
-  .tool-page { padding: 12px; }
+  .tab-content { padding: 8px; }
+  .tool-page { padding: 8px; }
+
+  /* Tables scroll inside cards instead of overflowing the page */
+  .mat-mdc-card-content {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Compact reference tables on small screens */
+  .reference-table th,
+  .reference-table td { padding: 6px 8px; font-size: 11px; }
 }
